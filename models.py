@@ -16,8 +16,6 @@ class EditPW(BaseModel):
     new_password: str
 
 class CreateTodo(BaseModel):
-    todo_num : int
-    id: str
     status: str
     title: str
     contents: str
