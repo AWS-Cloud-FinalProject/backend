@@ -6,12 +6,14 @@ class SignUp(BaseModel):
     name: str
     password: str
 
-class UserAccount(BaseModel):
+class SignIn(BaseModel):
     id: str
     password: str
 
+class WithDraw(BaseModel):
+    password: str
+
 class EditPW(BaseModel):
-    id: str
     password: str
     new_password: str
 
