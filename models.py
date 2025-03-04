@@ -15,12 +15,16 @@ class EditPW(BaseModel):
     password: str
     new_password: str
 
-class Todo(BaseModel):
-    todo_num: int
-    id: str
+class CreateTodo(BaseModel):
     status: str
     title: str
     contents: str
+
+class EditTodo(BaseModel):
+    todo_num : int
+    status : str
+    title : str
+    contents : str
 
 class Diary(BaseModel):
     date: date
