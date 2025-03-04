@@ -1,11 +1,12 @@
-import datetime
+from datetime import datetime, timedelta
 import jwt
 import os
 from fastapi import HTTPException, Header
 
-def create_jwt_token(data: dict, expires_delta: int = 60):
-    expire = datetime.datetime.utcnow() + datetime.timedelta(minutes=expires_delta)
-    data.update({"exp": expire})
+def create_jwt_token(data: dict, expires_delta: timedelta):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + expires_delta
+    to_encode.update({"exp": expire})
     return jwt.encode(data, os.getenv('SECRET_KEY'), algorithm=os.getenv('ALGORITHM'))
 
 
