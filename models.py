@@ -1,10 +1,19 @@
 from pydantic import BaseModel
 from datetime import date
 
-class User(BaseModel):
+class SignUp(BaseModel):
     id: str
     name: str
     password: str
+
+class UserAccount(BaseModel):
+    id: str
+    password: str
+
+class EditPW(BaseModel):
+    id: str
+    password: str
+    new_password: str
 
 class Todo(BaseModel):
     todo_num: int
