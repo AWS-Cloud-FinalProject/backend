@@ -8,8 +8,9 @@ app = FastAPI()
 3. 투두
 '''
 
+# 서버 상태 확인
 @app.get("/ping")
 def ping():
-    return "pong"
+    return "pongggggggggggg"
 
 app.include_router(user.router)
