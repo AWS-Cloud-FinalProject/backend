@@ -1,14 +1,15 @@
 from fastapi import APIRouter, HTTPException
 from models import SignUp, UserAccount, EditPW
 from database import get_db_connection
-from functions import hash_password, verify_password
+import bcrypt
+
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(rounds=12)).decode('utf-8')
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 router = APIRouter()
-'''
-1. 유저
-2. 일기
-3. 투두
-'''
 
 # 회원가입
 @router.post("/sign-up")
