@@ -51,7 +51,7 @@ def withdraw(user: UserAccount):
         else:
             raise HTTPException(status_code=403, detail="WithDrawError")
 
-@router.patch("/edit_pw")
+@router.patch("/edit-pw")
 def edit_pw(user: EditPW):
     db = get_db_connection()
     with db.cursor() as cursor:
