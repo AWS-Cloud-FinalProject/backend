@@ -42,5 +42,6 @@ def refresh_access_token(refresh_token: str = Header(None)):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=403, detail="Invalid Refresh Token")
 
+# Routers
 app.include_router(user.router)
 app.include_router(todo.router)
