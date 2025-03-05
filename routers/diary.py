@@ -44,7 +44,7 @@ def delete_diary(date: int, user: dict = Depends(verify_token)):
     db = get_db_connection()
     date_obj = string_to_date(date)
     with db.cursor() as cursor:
-        sql = "DELETE FROM DIARY WHERE id = %s AND date = %s"
+        sql = "DELETE FROM DIARY WHERE id = %s AND diary_date = %s"
         cursor.execute(sql, (user_id, date_obj))
         db.commit()
     db.close()
