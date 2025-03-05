@@ -29,14 +29,14 @@ class EditTodo(BaseModel):
     contents : str
 
 class CreateDiary(BaseModel):
-    date: date
-    id: str
+    diary_date: date
     title: str
     contents: str
-    photo: str
+    photo: str = None
     emotion: str
 
 class EditDiary(BaseModel):
+    diary_date: date
     title: str
     contents: str
     emotion: str
