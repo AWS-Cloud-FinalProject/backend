@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, UploadFile, File, Form
 from models import CreateDiary, EditDiary
 from database import get_db_connection
 from functions import verify_token, string_to_date
-#from s3 import upload_to_s3
+from s3 import upload_to_s3
 
 router = APIRouter()
 
@@ -26,10 +26,10 @@ def add_diary(
 ):
     user_id = user["sub"]
     db = get_db_connection()
-    #photo_url = None
+    photo_url = None
     
-    #if photo:
-     #   photo_url = upload_to_s3(photo)
+    if photo:
+        photo_url = upload_to_s3(photo)
     with db.cursor() as cursor:
         sql = "INSERT INTO DIARY (id, title, contents, emotion, photo, diary_date) VALUES (%s, %s, %s, %s, %s, %s)"
         cursor.execute(sql, (user_id, diary.title, diary.contents, diary.emotion, diary.photo, diary.diary_date))
@@ -55,10 +55,10 @@ def delete_diary(date: int, user: dict = Depends(verify_token)):
 def edit_diary(diary: EditDiary, user: dict = Depends(verify_token)):
     user_id = user["sub"]
     db = get_db_connection()
-    #photo_url = None
+    photo_url = None
     
-    #if photo:
-     #   photo_url = upload_to_s3(photo)
+    if photo:
+       photo_url = upload_to_s3(photo)
     
     with db.cursor() as cursor:
         sql = "UPDATE DIARY SET title = %s, contents = %s, emotion = %s, photo = COALESCE(%s, photo) WHERE id = %s AND diary_date = %s"
