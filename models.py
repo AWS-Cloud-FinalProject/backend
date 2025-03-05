@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
+from fastapi import Form
 
 class SignUp(BaseModel):
     id: str
@@ -29,15 +30,15 @@ class EditTodo(BaseModel):
     contents : str
 
 class CreateDiary(BaseModel):
-    diary_date: date
-    title: str
-    contents: str
+    diary_date: date = Form(...)
+    title: str = Form(...)
+    contents: str = Form(...)
     photo: str = None
-    emotion: str
+    emotion: str = Form(...)
 
 class EditDiary(BaseModel):
-    diary_date: date
-    title: str
-    contents: str
-    emotion: str
+    diary_date: date  = Form(...)
+    title: str = Form(...)
+    contents: str = Form(...)
+    emotion: str = Form(...)
     photo: str = None

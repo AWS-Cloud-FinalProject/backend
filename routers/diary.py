@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, UploadFile, File, Form
 from models import CreateDiary, EditDiary
 from database import get_db_connection
 from functions import verify_token, string_to_date
-from s3 import upload_to_s3
+from routers.s3 import upload_to_s3
 
 router = APIRouter()
 
@@ -21,7 +21,8 @@ def get_diary_detail(date: int, user: dict = Depends(verify_token)):
 # 일기 작성
 @router.post("/add-diary/")
 def add_diary(
-    diary: CreateDiary,
+    diary: CreateDiary = Depends(),
+    photo: UploadFile = File(None),
     user: dict = Depends(verify_token)
 ):
     user_id = user["sub"]
@@ -29,7 +30,7 @@ def add_diary(
     photo_url = None
     
     if photo:
-        photo_url = upload_to_s3(photo)
+        photo_url = upload_to_s3(photo, "webdiary", "diary-photos")
     with db.cursor() as cursor:
         sql = "INSERT INTO DIARY (id, title, contents, emotion, photo, diary_date) VALUES (%s, %s, %s, %s, %s, %s)"
         cursor.execute(sql, (user_id, diary.title, diary.contents, diary.emotion, diary.photo, diary.diary_date))
@@ -52,7 +53,10 @@ def delete_diary(date: int, user: dict = Depends(verify_token)):
 
 # 일기 수정
 @router.patch("/edit-diary/")
-def edit_diary(diary: EditDiary, user: dict = Depends(verify_token)):
+def edit_diary(
+    diary: EditDiary = Depends(), # Pydantic 모델을 Form으로 받음
+    photo: UploadFile = File(None), #사진은 별도로 업로드
+    user: dict = Depends(verify_token)):
     user_id = user["sub"]
     db = get_db_connection()
     photo_url = None
