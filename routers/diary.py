@@ -10,9 +10,10 @@ router = APIRouter()
 def get_diary_detail(year: int, month: int, day: int, user: dict = Depends(verify_token)):
     user_id = user["sub"]
     db = get_db_connection()
+    date_str=f"{year}-{month:02d}-{day:02d}"
     with db.cursor() as cursor:
         sql = "SELECT * FROM DIARY WHERE id = %s"
-        cursor.execute(sql, (user_id, f"{year}-{month:02d}-{day:02d}"))
+        cursor.execute(sql, (user_id, date_str))
         result = cursor.fetchone()
     db.close()
     return result
@@ -42,9 +43,10 @@ def add_diary(
 def delete_diary(year: int, month: int, day: int, user: dict = Depends(verify_token)):
     user_id = user["sub"]
     db = get_db_connection()
+    date_str=f"{year}-{month:02d}-{day:02d}"
     with db.cursor() as cursor:
         sql = "DELETE FROM DIARY WHERE id = %s AND date = %s"
-        cursor.execute(sql, (user_id, f"{year}-{month:02d}-{day:02d}"))
+        cursor.execute(sql, (user_id, date_str))
         db.commit()
     db.close()
     return {"message": "Diary entry deleted successfully"}
