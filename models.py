@@ -28,10 +28,16 @@ class EditTodo(BaseModel):
     title : str
     contents : str
 
-class Diary(BaseModel):
+class CreateDiary(BaseModel):
     date: date
     id: str
     title: str
     contents: str
     photo: str
     emotion: str
+
+class EditDiary(BaseModel):
+    title: str
+    contents: str
+    emotion: str
+    photo: str = None

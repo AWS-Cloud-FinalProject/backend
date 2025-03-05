@@ -1,7 +1,7 @@
 import os
 from datetime import timedelta
 from fastapi import FastAPI, HTTPException, Header
-from routers import user, todo
+from routers import user, todo, diary
 from functions import create_jwt_token
 import jwt
 from dotenv import load_dotenv
@@ -45,3 +45,4 @@ def refresh_access_token(refresh_token: str = Header(None)):
 # Routers
 app.include_router(user.router)
 app.include_router(todo.router)
+app.include_router(diary.router)
