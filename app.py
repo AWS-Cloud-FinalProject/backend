@@ -1,7 +1,12 @@
-from fastapi import FastAPI
-from models import User
-from database import get_db_connection
-from functions import hash_password, verify_password
+import os
+from datetime import timedelta
+from fastapi import FastAPI, HTTPException, Header
+from routers import user, todo
+from functions import create_jwt_token
+import jwt
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 '''
@@ -10,18 +15,33 @@ app = FastAPI()
 3. 투두
 '''
 
-
+# 서버 상태 확인
 @app.get("/ping")
 def ping():
-    return "pong"
+    return "pongggggggggggg"
 
-# 회원가입
-@app.post("/sign-up")
-def create_user(user: User):
-    db = get_db_connection()
-    hashed_password = hash_password(user.password)
-    with db.cursor() as cursor:
-        cursor.execute(f"INSERT INTO USER (id, name, password) VALUES ({user.id}, {user.name}, {hashed_password})")
-        db.commit()
-    db.close()
-    return {"message": "User created successfully"}
+@app.post("/refresh-token")
+def refresh_access_token(refresh_token: str = Header(None)):
+    """
+    Access Token 만료 시 Refresh Token으로 Access Token 발급 받는 API
+    """
+    if not refresh_token:
+        raise HTTPException(status_code=403, detail="Refresh Token required")
+    try:
+        payload = jwt.decode(refresh_token, os.getenv('SECRET_KEY'), algorithms=os.getenv('ALGORITHM'))
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=403, detail="Invalid Refresh Token")
+
+        # 새로운 Access Token 발급
+        new_access_token = create_jwt_token({"sub": user_id}, timedelta(minutes=180))
+        return {"access_token": new_access_token}
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Refresh Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid Refresh Token")
+
+# Routers
+app.include_router(user.router)
+app.include_router(todo.router)
