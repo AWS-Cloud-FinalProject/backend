@@ -136,7 +136,7 @@ def edit_diary(
     
     with db.cursor() as cursor:
         sql = "UPDATE DIARY SET title = %s, contents = %s, emotion = %s, photo = COALESCE(%s, photo) WHERE id = %s AND diary_date = %s"
-        cursor.execute(sql, (title, contents, emotion, photo, user_id, diary_date))
+        cursor.execute(sql, (title, contents, emotion, photo_url, user_id, diary_date))
         db.commit()
     db.close()
     return {"message": "Diary entry updated successfully"}
