@@ -8,6 +8,33 @@ import os
 
 router = APIRouter()
 
+@router.get("/get-diary/{year_month}")
+def get_diary(year_month: str, user: dict = Depends(verify_token)):
+    user_id = user["sub"]
+    db = get_db_connection()
+    try:
+        with db.cursor() as cursor:
+            # 연도와 월에 해당하는 일기 데이터 조회
+            sql = """
+                SELECT DATE_FORMAT(diary_date, '%%Y-%%m-%%d') AS date, title, emotion 
+                FROM DIARY 
+                WHERE id = %s AND DATE_FORMAT(diary_date, '%%Y%%m') = %s
+                ORDER BY diary_date
+            """
+            cursor.execute(sql, (user_id, year_month))
+            result = cursor.fetchall()
+
+            # 결과를 JSON 형식으로 변환
+            diary_entries = [{"date": row["date"], "title": row["title"], "emotion": row["emotion"]} for row in result]
+
+            return diary_entries
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database query error: {str(e)}")
+
+    finally:
+        db.close()
+
 @router.get("/get-diary-detail/{date}") 
 def get_diary_detail(
     date: int,
