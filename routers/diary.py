@@ -3,7 +3,8 @@ from database import get_db_connection
 from functions import verify_token, string_to_date
 from routers.s3 import upload_to_s3, delete_file_from_s3
 from datetime import date
-from pathlib import Path
+from urllib.parse import urlparse
+import os
 
 router = APIRouter()
 
@@ -52,26 +53,47 @@ def delete_diary(date: int, user: dict = Depends(verify_token)):
     db = get_db_connection()
     date_obj = string_to_date(date)
      # "YYYY-MM-DD" 형식에서 파일 이름을 생성 (파일 확장자는 .jpg로 고정)
-    date_str = date_obj.replace('-', '')
-    file_name = f"{date_str}.jpg"  # 예: 20250306.jpg
+    #date_str = date_obj.replace('-', '')
+    #file_name = f"{date_str}.jpg"  # 예: 20250306.jpg
 
-    # DB에서 일기 삭제
     try:
         with db.cursor() as cursor:
-            sql = "DELETE FROM DIARY WHERE id = %s AND diary_date = %s"
-            cursor.execute(sql, (user_id, date_str))
-            db.commit()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"DB에서 일기 삭제 중 오류 발생: {str(e)}")
+            # 해당 날짜의 사진 URL 조회
+            sql = "SELECT photo FROM DIARY WHERE id = %s AND diary_date = %s"
+            cursor.execute(sql, (user_id, date_obj))
+            result = cursor.fetchone()
+        
+        if not result or not result["photo"]:
+            raise HTTPException(status_code=404, detail="사진이 존재하지 않음")
+
+        photo_url = result["photo"]
+
+        # URL에서 파일 확장자 추출
+        parsed_url = urlparse(photo_url)
+        file_extension = os.path.splitext(parsed_url.path)[-1]  # 예: ".jpg" 또는 ".png"
+
+        if not file_extension:
+            raise HTTPException(status_code=500, detail="파일 확장자를 찾을 수 없음")
+
+        # 파일 이름 생성
+        file_name = f"{date_obj.replace('-', '')}{file_extension}"
 
         # S3에서 파일 삭제
-    try:
         delete_file_from_s3(user_id, file_name)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"S3 파일 삭제 중 오류 발생: {str(e)}")
 
-    db.close()
-    return {"message": "Diary entry deleted successfully"}
+        # DB에서 일기 삭제
+        with db.cursor() as cursor:
+            sql = "DELETE FROM DIARY WHERE id = %s AND diary_date = %s"
+            cursor.execute(sql, (user_id, date_obj))
+            db.commit()
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"오류 발생: {str(e)}")
+
+    finally:
+        db.close()
+
+    return {"message": "Diary entry and photo deleted successfully"}
 
 # 일기 수정
 @router.patch("/edit-diary/")
