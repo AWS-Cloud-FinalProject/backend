@@ -1,9 +1,12 @@
 import boto3
-from botocore.exceptions import NoCredentialsError
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 import os
+import logging
 from fastapi import UploadFile
 from io import BytesIO
 from dotenv import load_dotenv
+from typing import Optional
+from urllib.parse import urlparse
 
 load_dotenv()
 
@@ -35,11 +38,44 @@ def upload_to_s3(photo: UploadFile, bucket_name: str, folder_name: str, diary_da
     except Exception as e:
         raise Exception(f"파일 업로드 중 오류 발생: {str(e)}")
 
-def delete_file_from_s3(user_id: str, file_name: str):
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+def delete_file_from_s3(user_id: str, file_url: str):
+    """S3에서 기존 파일 삭제"""
     try:
+        s3_client = boto3.client("s3")
+        bucket_name = "webdiary"
+
+        # URL에서 S3 객체 키 추출
+        parsed_url = urlparse(file_url)
+        object_key = parsed_url.path.lstrip("/")  # 앞에 "/" 제거
+        
+        # S3에서 파일이 존재하는지 확인 후 삭제
+        response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=object_key)
+        if "Contents" not in response:
+            print(f"파일이 존재하지 않음: {object_key}")
+            return  # 파일이 없으면 그냥 종료
+        
         # S3에서 파일 삭제
-        s3_client.delete_object(Bucket="webdiary", Key=f"{user_id}/{file_name}")
+        s3_client.delete_object(Bucket=bucket_name, Key=object_key)
+        print(f"Deleted file from S3: {object_key}")
+
     except (NoCredentialsError, PartialCredentialsError) as e:
         raise Exception(f"AWS 자격 증명 오류: {str(e)}")
     except Exception as e:
         raise Exception(f"S3 파일 삭제 중 오류 발생: {str(e)}")
+
+
+
+def update_s3_file(user_id: str, old_file_url: Optional[str], new_file: UploadFile, bucket_name: str, folder_name: str, diary_date: str) -> str:
+    """기존 파일을 삭제하고 새로운 파일을 업로드"""
+    try:
+        # 기존 파일이 존재하면 삭제
+        if old_file_url:
+            delete_file_from_s3(user_id, old_file_url)
+        
+        # 새 파일 업로드
+        return upload_to_s3(new_file, bucket_name, folder_name, diary_date)
+    except Exception as e:
+        raise Exception(f"파일 업데이트 중 오류 발생: {str(e)}")
