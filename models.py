@@ -22,9 +22,11 @@ class CreateTodo(BaseModel):
     status: str
     title: str
     contents: str
+    todo_order : int
 
 class EditTodo(BaseModel):
     todo_num : int
     status : str
     title : str
     contents : str
+    todo_order : int
