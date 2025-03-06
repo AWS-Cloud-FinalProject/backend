@@ -37,7 +37,6 @@ def add_diary(
     photo_url = None
 
     if photo:
-        #user_folder = f"{user_id}/"
         photo_url = upload_to_s3(photo, "webdiary", str(user_id), str(diary_date))
     with db.cursor() as cursor:
         sql = "INSERT INTO DIARY (id, title, contents, emotion, photo, diary_date) VALUES (%s, %s, %s, %s, %s, %s)"
@@ -52,9 +51,6 @@ def delete_diary(date: int, user: dict = Depends(verify_token)):
     user_id = user["sub"]
     db = get_db_connection()
     date_obj = string_to_date(date)
-     # "YYYY-MM-DD" 형식에서 파일 이름을 생성 (파일 확장자는 .jpg로 고정)
-    #date_str = date_obj.replace('-', '')
-    #file_name = f"{date_str}.jpg"  # 예: 20250306.jpg
 
     try:
         with db.cursor() as cursor:
@@ -109,7 +105,6 @@ def edit_diary(
     photo_url = None
     
     if photo:
-       #user_folder = f"{user_id}"
        photo_url = upload_to_s3(photo, "webdiary", user_id, str(diary_date))
     
     with db.cursor() as cursor:
