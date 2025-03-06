@@ -53,7 +53,7 @@ def delete_diary(date: int, user: dict = Depends(verify_token)):
     date_obj = string_to_date(date)
      # "YYYY-MM-DD" 형식에서 파일 이름을 생성 (파일 확장자는 .jpg로 고정)
     date_str = date_obj.replace('-', '')
-    file_name = f"{date_str}{Path(photo.filename).suffix}"  # 예: 20250306.jpg
+    file_name = f"{date_str}.jpg"  # 예: 20250306.jpg
 
     # DB에서 일기 삭제
     try:
