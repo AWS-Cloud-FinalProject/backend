@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import jwt
 import os
 from fastapi import HTTPException, Header
@@ -28,7 +28,7 @@ def string_to_date(date_int: int):
     formatted_str = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:]}"
     
     # 문자열을 date 타입으로 변환
-    #date_obj = datetime.strptime(formatted_str, "%Y-%m-%d").date()
+    #date_obj = datetime.strptime(str(date_int), '%Y%m%d').date()
     
     #return date_obj
     return formatted_str

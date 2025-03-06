@@ -28,17 +28,3 @@ class EditTodo(BaseModel):
     status : str
     title : str
     contents : str
-
-class CreateDiary(BaseModel):
-    diary_date: date = Form(...)
-    title: str = Form(...)
-    contents: str = Form(...)
-    photo: str = None
-    emotion: str = Form(...)
-
-class EditDiary(BaseModel):
-    diary_date: date  = Form(...)
-    title: str = Form(...)
-    contents: str = Form(...)
-    emotion: str = Form(...)
-    photo: str = None
