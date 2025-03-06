@@ -9,7 +9,7 @@ import os
 router = APIRouter()
 
 @router.get("/get-diary/{year_month}")
-def get_diary_by_month(year_month: str, user: dict = Depends(verify_token)):
+def get_diary(year_month: str, user: dict = Depends(verify_token)):
     user_id = user["sub"]
     db = get_db_connection()
     try:
