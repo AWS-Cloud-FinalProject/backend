@@ -169,4 +169,3 @@ def edit_diary(
 
     db.close()
     return {"message": "Diary entry updated successfully"}
-
