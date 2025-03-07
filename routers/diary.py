@@ -4,9 +4,11 @@ from fastapi import FastAPI, HTTPException
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
 from database import get_db_connection
 from functions import verify_token, string_to_date
-from routers.s3 import upload_to_s3, delete_file_from_s3
+from routers.s3 import upload_to_s3, delete_file_from_s3, update_s3_file
 from datetime import date
 from urllib.parse import urlparse
+from typing import Optional
+import pymysql.cursors
 import os
 
 router = APIRouter()
@@ -91,7 +93,7 @@ def add_diary(
     db.close()
     return {"message": "Diary entry added successfully"}
 
-# 일기 삭제
+#일기 삭제
 @router.delete("/delete-diary/{date}")
 def delete_diary(date: int, user: dict = Depends(verify_token)):
     user_id = user["sub"]
@@ -100,30 +102,19 @@ def delete_diary(date: int, user: dict = Depends(verify_token)):
 
     try:
         with db.cursor() as cursor:
-            # 해당 날짜의 사진 URL 조회
+            # 사진 URL 조회
             sql = "SELECT photo FROM DIARY WHERE id = %s AND diary_date = %s"
             cursor.execute(sql, (user_id, date_obj))
             result = cursor.fetchone()
-        
-        if not result or not result["photo"]:
-            raise HTTPException(status_code=404, detail="사진이 존재하지 않음")
 
-        photo_url = result["photo"]
+        # 사진이 존재하면 S3에서 삭제
+        if result and result["photo"]:
+            photo_url = result["photo"]
+            parsed_url = urlparse(photo_url)
+            object_key = parsed_url.path.lstrip("/")  # '/bucket/path/to/file.jpg' -> 'path/to/file.jpg'
+            delete_file_from_s3(user_id, object_key)
 
-        # URL에서 파일 확장자 추출
-        parsed_url = urlparse(photo_url)
-        file_extension = os.path.splitext(parsed_url.path)[-1]  # 예: ".jpg" 또는 ".png"
-
-        if not file_extension:
-            raise HTTPException(status_code=500, detail="파일 확장자를 찾을 수 없음")
-
-        # 파일 이름 생성
-        file_name = f"{date_obj.replace('-', '')}{file_extension}"
-
-        # S3에서 파일 삭제
-        delete_file_from_s3(user_id, file_name)
-
-        # DB에서 일기 삭제
+        # 사진 유무와 관계없이 DB에서 일기 삭제
         with db.cursor() as cursor:
             sql = "DELETE FROM DIARY WHERE id = %s AND diary_date = %s"
             cursor.execute(sql, (user_id, date_obj))
@@ -135,28 +126,51 @@ def delete_diary(date: int, user: dict = Depends(verify_token)):
     finally:
         db.close()
 
-    return {"message": "Diary entry and photo deleted successfully"}
+    return {"message": "Diary entry deleted successfully"}
 
 # 일기 수정
 @router.patch("/edit-diary/")
 def edit_diary(
-    diary_date: date  = Form(...),
+    diary_date: date = Form(...),
     title: str = Form(...),
     contents: str = Form(...),
-    emotion: str = Form(...), 
-    photo: UploadFile = File(None), #사진은 별도로 업로드
-    user: dict = Depends(verify_token)):
+    emotion: str = Form(...),
+    photo: Optional[UploadFile] = File(None),  # 빈 값 가능
+    user: dict = Depends(verify_token)
+):
     user_id = user["sub"]
     db = get_db_connection()
-    photo_url = None
-    
-    if photo:
-       photo_url = upload_to_s3(photo, "webdiary", user_id, str(diary_date))
-    
+
     with db.cursor() as cursor:
-        sql = "UPDATE DIARY SET title = %s, contents = %s, emotion = %s, photo = COALESCE(%s, photo) WHERE id = %s AND diary_date = %s"
-        cursor.execute(sql, (title, contents, emotion, photo_url, user_id, diary_date))
+        # 기존 사진 URL 가져오기
+        sql_select = "SELECT photo FROM DIARY WHERE id = %s AND diary_date = %s"
+        cursor.execute(sql_select, (user_id, diary_date))
+        result = cursor.fetchone()
+        old_photo_url = result["photo"] if result else None
+
+        photo_url = old_photo_url  # 기본적으로 기존 사진 유지
+
+        # 사용자가 `photo` 필드를 빈 값으로 보낸 경우 → 기존 사진 삭제
+        if photo is None:
+            if old_photo_url:
+                delete_file_from_s3(user_id, old_photo_url)  # S3에서 삭제
+            photo_url = None  # DB에서도 삭제
+
+        # 새로운 사진이 업로드된 경우 → 기존 사진 삭제 후 업로드
+        elif photo:
+            if old_photo_url:
+                delete_file_from_s3(user_id, old_photo_url)  # 기존 파일 삭제
+            photo_url = upload_to_s3(photo, "webdiary", str(user_id), str(diary_date))  # 새 파일 업로드
+
+        # DB 업데이트
+        sql_update = """
+        UPDATE DIARY 
+        SET title = %s, contents = %s, emotion = %s, photo = %s 
+        WHERE id = %s AND diary_date = %s
+        """
+        cursor.execute(sql_update, (title, contents, emotion, photo_url, user_id, diary_date))
         db.commit()
+
     db.close()
     return {"message": "Diary entry updated successfully"}
 >>>>>>> 971cf4c0f5d5161873f3d6b4f8a6aec35995edd8
