@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 from datetime import datetime, timedelta
+=======
+from datetime import datetime, timedelta, date
+>>>>>>> 971cf4c0f5d5161873f3d6b4f8a6aec35995edd8
 import jwt
 import os
 from fastapi import HTTPException, Header
@@ -20,4 +24,15 @@ def verify_token(access_token: str = Header(None)):
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:
+<<<<<<< HEAD
         raise HTTPException(status_code=401, detail="Invalid token")
+=======
+        raise HTTPException(status_code=401, detail="Invalid token")
+        
+def string_to_date(date_int: int):
+    # 문자열을 "YYYY-MM-DD" 형식으로 변환'
+    date_str = str(date_int)
+    formatted_str = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:]}"
+    
+    return formatted_str
+>>>>>>> 971cf4c0f5d5161873f3d6b4f8a6aec35995edd8

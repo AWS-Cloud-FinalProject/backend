@@ -1,7 +1,11 @@
 import os
 from datetime import timedelta
 from fastapi import FastAPI, HTTPException, Header
+<<<<<<< HEAD
 from routers import user, todo
+=======
+from routers import user, todo, diary
+>>>>>>> 971cf4c0f5d5161873f3d6b4f8a6aec35995edd8
 from functions import create_jwt_token
 import jwt
 from dotenv import load_dotenv
@@ -42,5 +46,12 @@ def refresh_access_token(refresh_token: str = Header(None)):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=403, detail="Invalid Refresh Token")
 
+<<<<<<< HEAD
 app.include_router(user.router)
 app.include_router(todo.router)
+=======
+# Routers
+app.include_router(user.router)
+app.include_router(todo.router)
+app.include_router(diary.router)
+>>>>>>> 971cf4c0f5d5161873f3d6b4f8a6aec35995edd8
