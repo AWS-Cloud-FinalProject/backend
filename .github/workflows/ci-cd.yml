@@ -45,6 +45,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+    
+    - name: Debug AWS_REGION
+      run: echo "AWS Region is ${{ secrets.AWS_REGION }}"
 
     - name: Configure AWS CLI
       run: |
