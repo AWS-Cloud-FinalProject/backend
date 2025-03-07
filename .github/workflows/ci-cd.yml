@@ -30,6 +30,13 @@ jobs:
     - name: Build Docker image
       run: |
         docker build -t ${{ secrets.ECR_REPOSITORY_URI }}:latest .  # 도커 이미지를 빌드하고 ECR URI에 태그 지정
+    
+    - name: Configure AWS Credentials  # AWS 자격 증명 설정 (필수)
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Log in to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v1  # ECR에 로그인
@@ -50,11 +57,8 @@ jobs:
       run: |
         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws configure set region "$AWS_REGION"
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: us-west-2
+        aws configure set region ${{ secrets.AWS_REGION }}
+
     # - name: Update kubeconfig for EKS
     #   run: |
     #     aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}  # EKS 클러스터 이름을 이용해 kubeconfig 업데이트
