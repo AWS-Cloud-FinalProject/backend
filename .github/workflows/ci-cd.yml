@@ -32,7 +32,9 @@ jobs:
         docker build -t ${{ secrets.ECR_REPOSITORY_URI }}:latest .  # 도커 이미지를 빌드하고 ECR URI에 태그 지정
 
     - name: Log in to Amazon ECR
-      uses: aws-actions/amazon-ecr-login@v1  # ECR에 로그인
+      uses: aws-actions/amazon-ecr-login@v1 # ECR에 로그인
+      env:
+        AWS_REGION: ${{ secrets.AWS_REGION }} 
 
     - name: Push Docker image to ECR
       run: |
