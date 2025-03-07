@@ -3,7 +3,7 @@ name: Python CI/CD with Docker and EKS
 on:
   push:
     branches:
-      - namgyu
+      - yong
 
 permissions:
   contents: read
@@ -25,6 +25,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt 
+  
 
     - name: Build Docker image
       run: |
@@ -49,4 +50,12 @@ jobs:
       run: |
         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws configure set region ${{ secrets.AWS_REGION }}  # 리전 설정 부분을 올바르게 수정
+        aws configure set region ${{ secrets.AWS_REGION }}
+    # - name: Update kubeconfig for EKS
+    #   run: |
+    #     aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}  # EKS 클러스터 이름을 이용해 kubeconfig 업데이트
+
+    # - name: Deploy to EKS
+    #   run: |
+    #     kubectl set image deployment/fastapi-app fastapi-app=${{ secrets.ECR_REPOSITORY_URI }}:latest  # EKS 배포에 새로운 이미지로 업데이트
+    #     kubectl rollout status deployment/fastapi-app  # 배포가 완료될 때까지 대기
