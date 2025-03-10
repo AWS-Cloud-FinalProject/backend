@@ -29,15 +29,4 @@ class EditTodo(BaseModel):
     status : str
     title : str
     contents : str
-<<<<<<< HEAD
-
-class Diary(BaseModel):
-    date: date
-    id: str
-    title: str
-    contents: str
-    photo: str
-    emotion: str
-=======
     todo_order : int
->>>>>>> 971cf4c0f5d5161873f3d6b4f8a6aec35995edd8

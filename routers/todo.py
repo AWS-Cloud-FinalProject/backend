@@ -2,10 +2,7 @@ from fastapi import APIRouter, Depends
 from models import CreateTodo, EditTodo
 from database import get_db_connection
 from functions import verify_token
-<<<<<<< HEAD
-=======
 from collections import defaultdict
->>>>>>> 971cf4c0f5d5161873f3d6b4f8a6aec35995edd8
 
 router = APIRouter()
 
@@ -15,13 +12,6 @@ def get_todo(user: dict = Depends(verify_token)):
     user_id = user["sub"]
     db = get_db_connection()
     with db.cursor() as cursor:
-<<<<<<< HEAD
-        sql = "SELECT * FROM TODO WHERE id = %s"
-        cursor.execute(sql, (user_id,))
-        result = cursor.fetchall()
-    db.close()
-    return result
-=======
         # todo_order 기준으로 오름차순 정렬 추가
         sql = "SELECT * FROM TODO WHERE id = %s ORDER BY todo_order ASC"
         cursor.execute(sql, (user_id,))
@@ -41,7 +31,6 @@ def get_todo(user: dict = Depends(verify_token)):
         grouped_todos[status].append(todo_item)
 
     return grouped_todos
->>>>>>> 971cf4c0f5d5161873f3d6b4f8a6aec35995edd8
 
 # todo 생성
 @router.post("/create-todo")
@@ -49,13 +38,8 @@ def create_todo(todo: CreateTodo, user: dict = Depends(verify_token)):
     user_id = user["sub"]
     db = get_db_connection()
     with db.cursor() as cursor:
-<<<<<<< HEAD
-        sql = "INSERT INTO TODO (id, status, title, contents) VALUES (%s, %s, %s, %s)"
-        cursor.execute(sql, (user_id, todo.status, todo.title, todo.contents))
-=======
         sql = "INSERT INTO TODO (id, status, title, contents, todo_order) VALUES (%s, %s, %s, %s, %s)"
         cursor.execute(sql, (user_id, todo.status, todo.title, todo.contents, todo.todo_order))
->>>>>>> 971cf4c0f5d5161873f3d6b4f8a6aec35995edd8
         db.commit()
     db.close()
     return {"message": "Todo Create Successfully"}
@@ -76,12 +60,6 @@ def delete_todo(todo_num: int, user: dict = Depends(verify_token)):
 def edit_todo(todo: EditTodo, _: dict = Depends(verify_token)):
     db = get_db_connection()
     with db.cursor() as cursor:
-<<<<<<< HEAD
-        sql = "UPDATE TODO SET status = %s, title = %s, contents = %s WHERE todo_num = %s"
-        cursor.execute(sql, (todo.status, todo.title, todo.contents, todo.todo_num))
-        db.commit()
-        return {"message": "Todo updated successfully"}
-=======
         # 기존 todo_order를 업데이트하기 전에, 변경된 위치에 영향을 받는 todo들 순서 업데이트
         if todo.todo_order != todo.todo_num:  # `todo_order`가 변경될 경우
             # 해당 컬럼 내 todo_order를 한 칸씩 밀어내는 처리
@@ -100,4 +78,3 @@ def edit_todo(todo: EditTodo, _: dict = Depends(verify_token)):
         cursor.execute(sql, (todo.status, todo.title, todo.contents, todo.todo_order, todo.todo_num))
         db.commit()
         return {"message": "Todo updated successfully"}
->>>>>>> 971cf4c0f5d5161873f3d6b4f8a6aec35995edd8

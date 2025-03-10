@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   name: frontend-deployment
 spec:
-  replicas: 3  # 3개의 프론트엔드 Pod 생성
   selector:
     matchLabels:
       app: frontend
