@@ -126,7 +126,7 @@ def delete_diary(date: int, user: dict = Depends(verify_token)):
     return {"message": "Diary entry deleted successfully"}
 
 # 일기 수정
-@router.patch("/edit-diary/")
+@router.patch("/edit-diary")
 def edit_diary(
     diary_date: date = Form(...),
     title: str = Form(...),
