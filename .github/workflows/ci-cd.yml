@@ -3,7 +3,7 @@ name: Python CI/CD with Docker and EKS
 on:
   push:
     branches:
-      - master
+      - yong
     tags:
       - 'v*.*.*'  # Git 태그가 푸시될 때만 실행
 
