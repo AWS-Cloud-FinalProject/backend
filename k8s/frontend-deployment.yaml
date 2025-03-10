@@ -13,6 +13,6 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ${ECR_REPOSITORY_URI}:latest  # ECR에 푸시한 최신 이미지
+        image: 688567288847.dkr.ecr.us-west-2.amazonaws.com/webtest:latest
         ports:
         - containerPort: 80
