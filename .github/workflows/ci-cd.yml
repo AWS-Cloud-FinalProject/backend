@@ -64,9 +64,6 @@ jobs:
 
     - name: Deploy Backend to EKS
       run: |
-#        echo "ECR_REPOSITORY_URI=${{ secrets.ECR_REPOSITORY_URI }}" >> $GITHUB_ENV  # secrets를 환경 변수로 설정
-        # 환경 변수를 YAML 파일에 주입하여 적용
-#        envsubst < k8s/backend-deployment.yaml | kubectl apply -f -
         kubectl apply -f k8s/backend-service.yaml
         kubectl apply -f k8s/backend-deployment.yaml
 
