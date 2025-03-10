@@ -19,22 +19,27 @@ jobs:
     - name: Set up Python "3.12"
       uses: actions/setup-python@v3
       with:
-        python-version: '3.12' 
+        python-version: '3.12'
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt 
-  
+        pip install -r requirements.txt
+
+    - name: Configure AWS CLI
+      run: |
+        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws configure set region ${{ secrets.AWS_REGION }}  # 리전 추가
 
     - name: Build Docker image
       run: |
         docker build -t ${{ secrets.ECR_REPOSITORY_URI }}:latest .  # 도커 이미지를 빌드하고 ECR URI에 태그 지정
 
     - name: Log in to Amazon ECR
-      uses: aws-actions/amazon-ecr-login@v1 # ECR에 로그인
+      uses: aws-actions/amazon-ecr-login@v1  # ECR에 로그인
       env:
-        AWS_REGION: ${{ secrets.AWS_REGION }} 
+        AWS_REGION: ${{ secrets.AWS_REGION }}  # 리전 환경 변수 추가
 
     - name: Push Docker image to ECR
       run: |
@@ -53,11 +58,3 @@ jobs:
         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws configure set region ${{ secrets.AWS_REGION }}
-    # - name: Update kubeconfig for EKS
-    #   run: |
-    #     aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}  # EKS 클러스터 이름을 이용해 kubeconfig 업데이트
-
-    # - name: Deploy to EKS
-    #   run: |
-    #     kubectl set image deployment/fastapi-app fastapi-app=${{ secrets.ECR_REPOSITORY_URI }}:latest  # EKS 배포에 새로운 이미지로 업데이트
-    #     kubectl rollout status deployment/fastapi-app  # 배포가 완료될 때까지 대기
