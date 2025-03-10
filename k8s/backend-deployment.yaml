@@ -13,6 +13,6 @@ spec:
     spec:
       containers:
       - name: backend
-        image: ${{ secrets.ECR_REPOSITORY_URI }}:latest  # ECR에 푸시한 최신 이미지
+        image: ${ECR_REPOSITORY_URI}:latest  # 환경 변수로 주입된 ECR URI
         ports:
         - containerPort: 80
