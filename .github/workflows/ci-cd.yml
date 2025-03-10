@@ -64,10 +64,13 @@ jobs:
 
     - name: Deploy Backend to EKS
       run: |
+        # secrets.ECR_REPOSITORY_URI를 환경 변수로 설정
+        echo "ECR_REPOSITORY_URI=${{ secrets.ECR_REPOSITORY_URI }}" >> $GITHUB_ENV
         ls -l k8s/  # 디렉토리 내용 확인
         # ECR_REPOSITORY_URI 값을 YAML 파일에 주입
         envsubst < k8s/backend-deployment.yaml | kubectl apply -f -
         kubectl apply -f k8s/backend-service.yaml
+
   
 
       # 배포 상태 확인
