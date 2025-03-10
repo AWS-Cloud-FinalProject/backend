@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-from fastapi import FastAPI, HTTPException
-=======
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
 from database import get_db_connection
 from functions import verify_token, string_to_date
@@ -173,4 +170,3 @@ def edit_diary(
 
     db.close()
     return {"message": "Diary entry updated successfully"}
->>>>>>> 971cf4c0f5d5161873f3d6b4f8a6aec35995edd8
