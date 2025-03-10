@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: backend-deployment
 spec:
+  replicas: 3  # 3개의 백엔드 Pod 생성
   selector:
     matchLabels:
       app: backend
@@ -13,6 +14,6 @@ spec:
     spec:
       containers:
       - name: backend
-        image: 688567288847.dkr.ecr.us-west-2.amazonaws.com/webtest:latest # 환경 변수로 주입된 ECR URI
+        image:  ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME }}:${VERSION_TAG} #${ECR_REPOSITORY_URI}:latest  # ECR에 푸시한 최신 이미지
         ports:
         - containerPort: 80
