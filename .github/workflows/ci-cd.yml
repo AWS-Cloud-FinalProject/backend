@@ -46,6 +46,11 @@ jobs:
     - name: Log in to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v1  # ECR에 로그인
 
+    - name: Print version and repository URI
+      run: |
+        echo "Version Tag: $VERSION_TAG"
+        echo "Repository URI: ${{ secrets.ECR_REPOSITORY_URI }}"
+    
     - name: Push Docker image to ECR
       run: |
         # ECR에 빌드된 이미지를 푸시
