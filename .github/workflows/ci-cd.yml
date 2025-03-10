@@ -28,6 +28,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt 
   
+    - name: Print GITHUB_REF for debugging
+      run: |
+        echo "GITHUB_REF: $GITHUB_REF"  # GITHUB_REF 값 출력
 
     - name: Build Docker image
       run: |
