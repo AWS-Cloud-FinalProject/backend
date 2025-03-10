@@ -62,13 +62,15 @@ jobs:
       run: |
         aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}  # EKS 클러스터 이름을 이용해 kubeconfig 업데이트
 
-    - name: Deploy frontend to EKS
+    - name: Deploy Backend to EKS
       run: |
         ls -l k8s/  # 디렉토리 내용 확인
-        kubectl apply -f k8s/backend-deployment.yaml
+        # ECR_REPOSITORY_URI 값을 YAML 파일에 주입
+        envsubst < k8s/backend-deployment.yaml | kubectl apply -f -
         kubectl apply -f k8s/backend-service.yaml
+  
 
-    # 배포 상태 확인
+      # 배포 상태 확인
     - name: Wait for rollout to finish
       run: |
         kubectl rollout status deployment/backend-deployment
