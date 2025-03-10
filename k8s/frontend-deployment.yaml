@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+spec:
+  replicas: 3  # 3개의 프론트엔드 Pod 생성
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: ${ECR_REPOSITORY_URI}:latest  # ECR에 푸시한 최신 이미지
+        ports:
+        - containerPort: 80
