@@ -63,9 +63,9 @@ jobs:
       run: |
         aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}  # EKS 클러스터 이름을 이용해 kubeconfig 업데이트
 
-    # frontend-deployment.yaml 적용
     - name: Deploy frontend to EKS
       run: |
+        ls -l k8s/  # 디렉토리 내용 확인
         kubectl apply -f k8s/frontend-deployment.yaml
         kubectl apply -f k8s/frontend-service.yaml
 
