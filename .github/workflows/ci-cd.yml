@@ -27,10 +27,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt 
-  
-    - name: Print GITHUB_REF for debugging
-      run: |
-        echo "GITHUB_REF: $GITHUB_REF"  # GITHUB_REF 값 출력
 
     - name: Build Docker image
       run: |
@@ -60,6 +56,7 @@ jobs:
     - name: Push Docker image to ECR
       run: |
         # ECR에 빌드된 이미지를 푸시
+        echo "Pushing image with repository URI: ${{ secrets.ECR_REPOSITORY_URI }}:${VERSION_TAG}"
         docker push ${{ secrets.ECR_REPOSITORY_URI }}:${VERSION_TAG}  # 버전 태그 푸시
         docker push ${{ secrets.ECR_REPOSITORY_URI }}:latest  # latest 푸시
 
