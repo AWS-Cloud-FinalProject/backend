@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   name: backend-deployment
 spec:
-  replicas: 3  # 3개의 백엔드 Pod 생성
   selector:
     matchLabels:
       app: backend
