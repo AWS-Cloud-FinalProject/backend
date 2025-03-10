@@ -63,11 +63,13 @@ jobs:
       run: |
         aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}  # EKS 클러스터 이름을 이용해 kubeconfig 업데이트
 
-    - name: Check if deployment exists
+    # frontend-deployment.yaml 적용
+    - name: Deploy frontend to EKS
       run: |
-        kubectl get deployment fastapi-app || kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/frontend-deployment.yaml
+        kubectl apply -f k8s/frontend-service.yaml
 
-    - name: Deploy to EKS
+    # 배포 상태 확인
+    - name: Wait for rollout to finish
       run: |
-        kubectl set image deployment/fastapi-app fastapi-app=${{ secrets.ECR_REPOSITORY_URI }}:latest
-        kubectl rollout status deployment/fastapi-app --timeout=120s
+        kubectl rollout status deployment/frontend-deployment
