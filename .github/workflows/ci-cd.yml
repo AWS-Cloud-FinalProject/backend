@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - yong
+    tags:
+      - 'v*.*.*'  # Git 태그가 푸시될 때만 실행
 
 permissions:
   contents: read
@@ -29,8 +31,11 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t ${{ secrets.ECR_REPOSITORY_URI }}:latest .  # 도커 이미지를 빌드하고 ECR URI에 태그 지정
-    
+        VERSION_TAG=${GITHUB_REF##*/}  # Git 태그에서 버전 추출 (예: v1.0.0)
+
+        docker build -t ${{ secrets.ECR_REPOSITORY_URI }}:${VERSION_TAG} .  # 버전 태그 기반 빌드,도커 이미지를 빌드하고 ECR URI에 태그 지정
+        docker tag ${{ secrets.ECR_REPOSITORY_URI }}:${VERSION_TAG} ${{ secrets.ECR_REPOSITORY_URI }}:latest  # latest 태그 추가
+
     - name: Configure AWS Credentials  # AWS 자격 증명 설정 (필수)
       uses: aws-actions/configure-aws-credentials@v2
       with:
@@ -43,7 +48,9 @@ jobs:
 
     - name: Push Docker image to ECR
       run: |
-        docker push ${{ secrets.ECR_REPOSITORY_URI }}:latest  # 빌드한 도커 이미지를 ECR에 푸시
+        # ECR에 빌드된 이미지를 푸시
+        docker push ${{ secrets.ECR_REPOSITORY_URI }}:${VERSION_TAG}  # 버전 태그 푸시
+        docker push ${{ secrets.ECR_REPOSITORY_URI }}:latest  # latest 푸시
 
   deploy:
     runs-on: ubuntu-latest
@@ -63,13 +70,13 @@ jobs:
       run: |
         aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}  # EKS 클러스터 이름을 이용해 kubeconfig 업데이트
 
-    - name: Deploy frontend to EKS
+    - name: Deploy backend to EKS
       run: |
         ls -l k8s/  # 디렉토리 내용 확인
-        kubectl apply -f k8s/frontend-deployment.yaml
-        kubectl apply -f k8s/frontend-service.yaml
+        kubectl apply -f k8s/backend-deployment.yaml
+        kubectl apply -f k8s/backend-service.yaml
 
     # 배포 상태 확인
     - name: Wait for rollout to finish
       run: |
-        kubectl rollout status deployment/frontend-deployment
+        kubectl rollout status deployment/backend-deployment
