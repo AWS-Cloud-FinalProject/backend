@@ -62,18 +62,13 @@ jobs:
       run: |
         aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}  # EKS 클러스터 이름을 이용해 kubeconfig 업데이트
 
-    - name: Print ECR_REPOSITORY_URI
-      run: echo "ECR_REPOSITORY_URI=${{ secrets.ECR_REPOSITORY_URI }}"
-
     - name: Deploy Backend to EKS
       run: |
-        echo "ECR_REPOSITORY_URI=${{ secrets.ECR_REPOSITORY_URI }}" >> $GITHUB_ENV  # secrets를 환경 변수로 설정
-        ls -l k8s/  # 디렉토리 내용 확인
+#        echo "ECR_REPOSITORY_URI=${{ secrets.ECR_REPOSITORY_URI }}" >> $GITHUB_ENV  # secrets를 환경 변수로 설정
         # 환경 변수를 YAML 파일에 주입하여 적용
-        envsubst < k8s/backend-deployment.yaml | kubectl apply -f -
+#        envsubst < k8s/backend-deployment.yaml | kubectl apply -f -
         kubectl apply -f k8s/backend-service.yaml
-
-
+        kubectl apply -f k8s/backend-deployment.yaml
 
       # 배포 상태 확인
     - name: Wait for rollout to finish
