@@ -59,11 +59,11 @@ jobs:
         aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws configure set region ${{ secrets.AWS_REGION }}
 
-    # - name: Update kubeconfig for EKS
-    #   run: |
-    #     aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}  # EKS 클러스터 이름을 이용해 kubeconfig 업데이트
+    - name: Update kubeconfig for EKS
+      run: |
+        aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}  # EKS 클러스터 이름을 이용해 kubeconfig 업데이트
 
-    # - name: Deploy to EKS
-    #   run: |
-    #     kubectl set image deployment/fastapi-app fastapi-app=${{ secrets.ECR_REPOSITORY_URI }}:latest  # EKS 배포에 새로운 이미지로 업데이트
-    #     kubectl rollout status deployment/fastapi-app  # 배포가 완료될 때까지 대기
+    - name: Deploy to EKS
+      run: |
+        kubectl set image deployment/fastapi-app fastapi-app=${{ secrets.ECR_REPOSITORY_URI }}:latest  # EKS 배포에 새로운 이미지로 업데이트
+        kubectl rollout status deployment/fastapi-app  # 배포가 완료될 때까지 대기
