@@ -8,5 +8,5 @@ spec:
   ports:
     - protocol: TCP
       port: 80         # 서비스 외부 포트
-      targetPort: 80   # Pod의 포트
+      targetPort: 8000   # Pod의 포트
   type: ClusterIP  # 내부에서만 접근 가능하도록 ClusterIP 설정
