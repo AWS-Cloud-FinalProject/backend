@@ -19,18 +19,17 @@ jobs:
     - name: Set up Python "3.12"
       uses: actions/setup-python@v3
       with:
-        python-version: '3.12' 
+        python-version: '3.12'
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt 
-  
+        pip install -r requirements.txt
 
     - name: Build Docker image
       run: |
         docker build -t ${{ secrets.ECR_REPOSITORY_URI }}:latest .  # 도커 이미지를 빌드하고 ECR URI에 태그 지정
-    
+
     - name: Configure AWS Credentials  # AWS 자격 증명 설정 (필수)
       uses: aws-actions/configure-aws-credentials@v2
       with:
