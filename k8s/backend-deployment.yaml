@@ -20,6 +20,6 @@ spec:
     spec:
       containers:
       - name: backend
-        image: 688567288847.dkr.ecr.us-west-2.amazonaws.com/webtest:1.0.4
+        image: 688567288847.dkr.ecr.us-west-2.amazonaws.com/webtest:latest
         ports:
         - containerPort: 80
