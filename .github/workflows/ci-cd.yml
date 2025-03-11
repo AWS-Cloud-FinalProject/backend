@@ -84,6 +84,9 @@ jobs:
         aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}  # EKS 클러스터 이름을 이용해 kubeconfig 업데이트
 
     - name: Deploy backend to EKS
+      env:
+        ECR_REPOSITORY_URI: ${{ secrets.ECR_REPOSITORY_URI }}
+        VERSION_TAG: ${{ env.VERSION_TAG }}
       run: |
         ls -l k8s/  # 디렉토리 내용 확인
         # envsubst를 사용하여 환경 변수를 k8s/backend-deployment.yaml 파일에 삽입하고 kubectl로 적용
