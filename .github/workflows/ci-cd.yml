@@ -88,6 +88,7 @@ jobs:
         # Extract version tag from git ref
         VERSION_TAG=$(echo $GITHUB_REF | sed 's|refs/tags/v||')
         export VERSION_TAG
+        ECR_REPOSITORY_URI: ${{ secrets.ECR_REPOSITORY_URI }}
         
         ls -l k8s/  # 디렉토리 내용 확인
         # envsubst를 사용하여 환경 변수를 k8s/backend-deployment.yaml 파일에 삽입하고 kubectl로 적용
