@@ -18,6 +18,11 @@ spec:
     spec:
       containers:
       - name: backend
-        image: ${ECR_REPOSITORY_URI}:${VERSION_TAG}
+        image: $(ECR_URI)/$(ECR_REPOSITORY):latest
+        envFrom:
+        - secretRef:
+            name: ecr-secret
+        - configMapRef:
+            name: app-config
         ports:
         - containerPort: 80
