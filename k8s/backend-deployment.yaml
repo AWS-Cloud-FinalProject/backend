@@ -3,9 +3,9 @@ kind: Deployment
 metadata:
   name: backend-deployment
   annotations:
-    argocd-image-updater.argoproj.io/backend.match-tag: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    argocd-image-updater.argoproj.io/image-list: backend=688567288847.dkr.ecr.us-west-2.amazonaws.com/backend
     argocd-image-updater.argoproj.io/backend.update-strategy: semver
-    argocd-image-updater.argoproj.io/backend: ${ECR_REPOSITORY_URI}
+    argocd-image-updater.argoproj.io/backend.allow-tags: regexp:^v[0-9]+\.[0-9]+\.[0-9]+$
 spec:
   replicas: 3
   selector:
@@ -18,11 +18,6 @@ spec:
     spec:
       containers:
       - name: backend
-        image: $(ECR_URI)/$(ECR_REPOSITORY):latest
-        envFrom:
-        - secretRef:
-            name: ecr-secret
-        - configMapRef:
-            name: app-config
+        image: 688567288847.dkr.ecr.us-west-2.amazonaws.com/backend:latest
         ports:
         - containerPort: 80
