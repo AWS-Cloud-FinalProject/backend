@@ -6,6 +6,8 @@ metadata:
     argocd-image-updater.argoproj.io/image-list: backend=688567288847.dkr.ecr.us-west-2.amazonaws.com/webtest
     argocd-image-updater.argoproj.io/backend.update-strategy: semver
     argocd-image-updater.argoproj.io/backend.allow-tags: regexp:^[0-9]+\.[0-9]+\.[0-9]+$
+  labels:
+    app.kubernetes.io/instance: backend-app
 spec:
   replicas: 3
   selector:
