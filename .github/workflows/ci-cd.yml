@@ -88,6 +88,9 @@ jobs:
         ECR_REPOSITORY_URI: ${{ secrets.ECR_REPOSITORY_URI }}
         VERSION_TAG: ${{ github.ref_name }}
       run: |
+        # Remove 'v' prefix from VERSION_TAG
+        VERSION_TAG=$(echo $VERSION_TAG | sed 's/^v//')
+        
         # Debug information
         echo "ECR_REPOSITORY_URI: ${ECR_REPOSITORY_URI}"
         echo "VERSION_TAG: ${VERSION_TAG}"
