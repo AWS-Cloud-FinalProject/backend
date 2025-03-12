@@ -15,4 +15,4 @@ spec:
       - name: backend
         image: 688567288847.dkr.ecr.us-west-2.amazonaws.com/webtest:latest # 환경 변수로 주입된 ECR URI
         ports:
-        - containerPort: 80
+        - containerPort: 8000
