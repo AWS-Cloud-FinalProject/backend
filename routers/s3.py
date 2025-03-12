@@ -54,7 +54,7 @@ logger = logging.getLogger(__name__)
 def delete_file_from_s3(user_id: str, file_url: str):
     """S3에서 기존 파일 삭제"""
     try:
-        s3_client = boto3.client("s3")
+        s3_client = boto3.client("s3", region_name=os.getenv('AWS_REGION'))
         bucket_name = "webdiary"
 
         # URL에서 S3 객체 키 추출
