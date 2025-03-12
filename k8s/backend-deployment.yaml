@@ -16,3 +16,6 @@ spec:
         image: 688567288847.dkr.ecr.us-west-2.amazonaws.com/webtest:latest # 환경 변수로 주입된 ECR URI
         ports:
         - containerPort: 8000
+        env:
+          - name: AWS_REGION
+            value: "us-west-2"  # 여기에 사용할 리전 값 지정
