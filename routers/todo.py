@@ -67,7 +67,6 @@ def edit_todo(todo: EditTodo, user: dict = Depends(verify_token)):
         db = get_db_connection()
         with db.cursor() as cursor:
             # 기존 todo_order를 업데이트하기 전에, 변경된 위치에 영향을 받는 todo들 순서 업데이트
-            # todo_order를 0부터 1씩 증가하도록 재배열
             # 1. todo_order를 0부터 1씩 증가하도록 재배열
             sql_reorder = """
                 UPDATE TODO t
