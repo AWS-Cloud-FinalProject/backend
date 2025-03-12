@@ -13,7 +13,7 @@ def get_todo(user: dict = Depends(verify_token)):
     user_id = user["username"]
     db = get_db_connection()
     with db.cursor() as cursor:
-        sql = "SELECT * FROM TODO WHERE id = %s"
+        sql = "SELECT * FROM TODO WHERE id = %s ORDER BY todo_order ASC"
         cursor.execute(sql, (user_id,))
         result = cursor.fetchall()
     db.close()
@@ -25,7 +25,8 @@ def get_todo(user: dict = Depends(verify_token)):
             "todo_num": row["todo_num"],
             "id": row["id"],
             "title": row["title"],
-            "contents": row["contents"]
+            "contents": row["contents"],
+            "todo_order": row["todo_order"]
         }
         grouped_todos[status].append(todo_item)
 
@@ -66,19 +67,34 @@ def edit_todo(todo: EditTodo, user: dict = Depends(verify_token)):
         db = get_db_connection()
         with db.cursor() as cursor:
             # 기존 todo_order를 업데이트하기 전에, 변경된 위치에 영향을 받는 todo들 순서 업데이트
-            if todo.todo_order != todo.todo_num:  # `todo_order`가 변경될 경우
-                # 해당 컬럼 내 todo_order를 한 칸씩 밀어내는 처리
+            # todo_order를 0부터 1씩 증가하도록 재배열
+            # 1. todo_order를 0부터 1씩 증가하도록 재배열
+            sql_reorder = """
+                UPDATE TODO t
+                JOIN (
+                    SELECT todo_num, 
+                           ROW_NUMBER() OVER (ORDER BY todo_order) - 1 AS new_rank
+                    FROM TODO
+                    WHERE status = %s
+                ) AS new_order
+                ON t.todo_num = new_order.todo_num
+                SET t.todo_order = new_order.new_rank
+            """
+            cursor.execute(sql_reorder, (todo.status,))
+
+            # 2. todo_order가 변경될 경우 기존 값들을 한 칸씩 밀어내는 처리
+            if todo.todo_order != todo.todo_num:
                 sql_update_order = """
-                        UPDATE TODO
-                        SET todo_order = CASE 
-                            WHEN todo_order >= %s THEN todo_order + 1
-                            ELSE todo_order
-                        END
-                        WHERE status = %s AND todo_order >= %s AND todo_num != %s
-                    """
+                    UPDATE TODO
+                    SET todo_order = CASE 
+                        WHEN todo_order >= %s THEN todo_order + 1
+                        ELSE todo_order
+                    END
+                    WHERE status = %s AND todo_order >= %s AND todo_num != %s
+                """
                 cursor.execute(sql_update_order, (todo.todo_order, todo.status, todo.todo_order, todo.todo_num))
 
-            # 이후 본래 todo의 정보를 수정
+            # 3. 이후 본래 todo의 정보를 수정
             sql = "UPDATE TODO SET status = %s, title = %s, contents = %s, todo_order = %s WHERE todo_num = %s AND id = %s"
             cursor.execute(sql, (todo.status, todo.title, todo.contents, todo.todo_order, todo.todo_num, user_id))
             db.commit()
