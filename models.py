@@ -23,8 +23,7 @@ class EditPW(BaseModel):
 class CreateTodo(BaseModel):
     status: str
     title: str
-    contents: str
-    todo_order: Optional[int] = None  # todo_order를 선택적으로 변경
+    contents: str  # todo_order를 선택적으로 변경
 
 class EditTodo(BaseModel):
     todo_num : int
