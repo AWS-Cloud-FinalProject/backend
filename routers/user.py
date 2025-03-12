@@ -11,11 +11,6 @@ import boto3
 
 load_dotenv()
 
-# 환경변수 확인을 위한 디버그 출력
-print("Region:", os.getenv('AWS_REGION'))
-print("User Pool ID:", os.getenv('COGNITO_USER_POOL_ID'))
-print("Client ID:", os.getenv('COGNITO_CLIENT_ID'))
-
 # Cognito 클라이언트 설정
 cognito_client = boto3.client('cognito-idp',
     aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
