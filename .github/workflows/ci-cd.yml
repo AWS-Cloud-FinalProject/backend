@@ -62,11 +62,6 @@ jobs:
       run: |
         aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}  # EKS 클러스터 이름을 이용해 kubeconfig 업데이트
 
-    - name: Delete Existing Backend
-      run: |
-        kubectl delete deploy backend-deployment
-        kubectl delete svc backend-service
-
     - name: Deploy Backend to EKS
       run: |
         kubectl apply -f k8s/backend-service.yaml
