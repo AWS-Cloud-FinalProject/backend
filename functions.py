@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, date
 import jwt
 import os
 from fastapi import HTTPException, Header
+from routers.cognito import verify_cognito_token
 
 def create_jwt_token(data: dict, expires_delta: timedelta):
     to_encode = data.copy()
@@ -11,17 +12,16 @@ def create_jwt_token(data: dict, expires_delta: timedelta):
 
 
 def verify_token(access_token: str = Header(None)):
-    """JWT 토큰 검증 함수 (헤더에서 access-token 키 사용)"""
+    """Cognito 토큰 검증 함수"""
     if not access_token:
         raise HTTPException(status_code=401, detail="Access token is missing")
-    try:
-        payload = jwt.decode(access_token, os.getenv('SECRET_KEY'), algorithms=os.getenv('ALGORITHM'))
-        return payload  # payload에 저장된 사용자 정보 반환
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired")
-    except jwt.InvalidTokenError:
+    
+    user = verify_cognito_token(access_token)
+    if not user:
         raise HTTPException(status_code=401, detail="Invalid token")
-        
+    
+    return user
+
 def string_to_date(date_int: int):
     # 문자열을 "YYYY-MM-DD" 형식으로 변환'
     date_str = str(date_int)

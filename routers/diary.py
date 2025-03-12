@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.get("/get-diary/{year_month}")
 def get_diary(year_month: str, user: dict = Depends(verify_token)):
-    user_id = user["sub"]
+    user_id = user["username"]
     db = get_db_connection()
     try:
         with db.cursor() as cursor:
@@ -56,7 +56,7 @@ def get_diary(year_month: str, user: dict = Depends(verify_token)):
 def get_diary_detail(
     date: int,
     user: dict = Depends(verify_token)):
-    user_id = user["sub"]
+    user_id = user["username"]
     date_obj = string_to_date(date)
     db = get_db_connection()
     with db.cursor() as cursor:
@@ -73,14 +73,14 @@ def add_diary(
     title: str = Form(...),
     contents: str = Form(...),
     emotion: str = Form(...),
-    photo: UploadFile = File(None),
+    photo: Optional[UploadFile] = File(None),  # Optional 추가
     user: dict = Depends(verify_token)
 ):
-    user_id = user["sub"]
+    user_id = user["username"]  # Cognito는 'sub' 대신 'username' 사용
     db = get_db_connection()
     photo_url = None
 
-    if photo:
+    if photo and photo.filename:  # 파일이 실제로 존재하는지 확인
         photo_url = upload_to_s3(photo, "webdiary", str(user_id), str(diary_date))
     with db.cursor() as cursor:
         sql = "INSERT INTO DIARY (id, title, contents, emotion, photo, diary_date) VALUES (%s, %s, %s, %s, %s, %s)"
@@ -92,7 +92,7 @@ def add_diary(
 #일기 삭제
 @router.delete("/delete-diary/{date}")
 def delete_diary(date: int, user: dict = Depends(verify_token)):
-    user_id = user["sub"]
+    user_id = user["username"]
     db = get_db_connection()
     date_obj = string_to_date(date)
 
@@ -131,10 +131,10 @@ def edit_diary(
     title: str = Form(...),
     contents: str = Form(...),
     emotion: str = Form(...),
-    photo: Optional[UploadFile] = File(None),  # 빈 값 가능
+    photo: Optional[UploadFile] = File(None),
     user: dict = Depends(verify_token)
 ):
-    user_id = user["sub"]
+    user_id = user["username"]
     db = get_db_connection()
 
     with db.cursor() as cursor:
