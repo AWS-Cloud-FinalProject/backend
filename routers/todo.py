@@ -38,8 +38,8 @@ def create_todo(todo: CreateTodo, user: dict = Depends(verify_token)):
         user_id = user["username"]
         db = get_db_connection()
         with db.cursor() as cursor:
-            sql = "INSERT INTO TODO (id, status, title, contents) VALUES (%s, %s, %s, %s)"
-            cursor.execute(sql, (user_id, todo.status, todo.title, todo.contents))
+            sql = "INSERT INTO TODO (id, status, title, contents, todo_order) VALUES (%s, %s, %s, %s, %s)"
+            cursor.execute(sql, (user_id, todo.status, todo.title, todo.contents, todo.todo_order))
             db.commit()
         db.close()
         return {"message": "Todo Create Successfully"}
@@ -65,9 +65,22 @@ def edit_todo(todo: EditTodo, user: dict = Depends(verify_token)):
         user_id = user["username"]
         db = get_db_connection()
         with db.cursor() as cursor:
-            # todo 정보 수정
-            sql = "UPDATE TODO SET status = %s, title = %s, contents = %s WHERE todo_num = %s AND id = %s"
-            cursor.execute(sql, (todo.status, todo.title, todo.contents, todo.todo_num, user_id))
+            # 기존 todo_order를 업데이트하기 전에, 변경된 위치에 영향을 받는 todo들 순서 업데이트
+            if todo.todo_order != todo.todo_num:  # `todo_order`가 변경될 경우
+                # 해당 컬럼 내 todo_order를 한 칸씩 밀어내는 처리
+                sql_update_order = """
+                        UPDATE TODO
+                        SET todo_order = CASE 
+                            WHEN todo_order >= %s THEN todo_order + 1
+                            ELSE todo_order
+                        END
+                        WHERE status = %s AND todo_order >= %s AND todo_num != %s
+                    """
+                cursor.execute(sql_update_order, (todo.todo_order, todo.status, todo.todo_order, todo.todo_num))
+
+            # 이후 본래 todo의 정보를 수정
+            sql = "UPDATE TODO SET status = %s, title = %s, contents = %s, todo_order = %s WHERE todo_num = %s AND id = %s"
+            cursor.execute(sql, (todo.status, todo.title, todo.contents, todo.todo_order, todo.todo_num, user_id))
             db.commit()
         db.close()
         return {"message": "Todo updated successfully"}

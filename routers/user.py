@@ -74,8 +74,8 @@ def create_user(user: SignUp):
         db = get_db_connection()
         hashed_password = hash_password(user.password)
         with db.cursor() as cursor:
-            sql = "INSERT INTO USER (id, name, password) VALUES (%s, %s, %s)"
-            cursor.execute(sql, (user.id, user.name, hashed_password))
+            sql = f"INSERT INTO USER (id, name, password, email) VALUES (%s, %s, %s, %s)"
+            cursor.execute(sql, (user.id, user.name, hashed_password, user.email))
             db.commit()
         db.close()
         
