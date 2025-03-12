@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.get("/get-diary/{year_month}")
 def get_diary(year_month: str, user: dict = Depends(verify_token)):
-    user_id = user["sub"]
+    user_id = user["username"]
     db = get_db_connection()
     try:
         with db.cursor() as cursor:
@@ -57,7 +57,7 @@ def get_diary(year_month: str, user: dict = Depends(verify_token)):
 def get_diary_detail(
     date: int,
     user: dict = Depends(verify_token)):
-    user_id = user["sub"]
+    user_id = user["username"]
     date_obj = string_to_date(date)
     db = get_db_connection()
     with db.cursor() as cursor:
@@ -77,7 +77,7 @@ def add_diary(
     photo: UploadFile = File(None),
     user: dict = Depends(verify_token)
 ):
-    user_id = user["sub"]
+    user_id = user["username"]
     db = get_db_connection()
     photo_url = None
 
@@ -93,7 +93,7 @@ def add_diary(
 #일기 삭제
 @router.delete("/delete-diary/{date}")
 def delete_diary(date: int, user: dict = Depends(verify_token)):
-    user_id = user["sub"]
+    user_id = user["username"]
     db = get_db_connection()
     date_obj = string_to_date(date)
 
@@ -133,9 +133,10 @@ def edit_diary(
     contents: str = Form(...),
     emotion: str = Form(...),
     photo: Optional[UploadFile] = File(None),  # 빈 값 가능
+    photo_provided: Optional[bool] = Form(False),  # 프론트엔드에서 사진 변경 여부 전달
     user: dict = Depends(verify_token)
 ):
-    user_id = user["sub"]
+    user_id = user["username"]
     db = get_db_connection()
 
     with db.cursor() as cursor:
@@ -147,14 +148,14 @@ def edit_diary(
 
         photo_url = old_photo_url  # 기본적으로 기존 사진 유지
 
-        # 사용자가 `photo` 필드를 빈 값으로 보낸 경우 → 기존 사진 삭제
-        if photo is None:
+        # 사용자가 명시적으로 사진을 삭제하려는 경우
+        if photo_provided and photo is None:
             if old_photo_url:
                 delete_file_from_s3(user_id, old_photo_url)  # S3에서 삭제
             photo_url = None  # DB에서도 삭제
 
         # 새로운 사진이 업로드된 경우 → 기존 사진 삭제 후 업로드
-        elif photo:
+        elif photo_provided and photo:
             if old_photo_url:
                 delete_file_from_s3(user_id, old_photo_url)  # 기존 파일 삭제
             photo_url = upload_to_s3(photo, "webdiary", str(user_id), str(diary_date))  # 새 파일 업로드

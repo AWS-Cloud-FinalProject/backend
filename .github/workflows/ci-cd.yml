@@ -3,7 +3,7 @@ name: Python CI/CD with Docker and EKS
 on:
   push:
     branches:
-      - doyeon
+      - doyeon-action
 
 permissions:
   contents: read
