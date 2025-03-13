@@ -106,7 +106,7 @@ jobs:
     - name: Deploy with Helm
       run: |
         echo "Deploying to Kubernetes with Helm"
-        helm upgrade --install backend-app ./k8s/helm \
+        helm upgrade --install backend-service ./k8s/helm \
           -f k8s/helm/values.yaml \
           -f k8s/helm/values-generated.yaml \
           --namespace default
@@ -116,6 +116,6 @@ jobs:
     - name: Check deployment status
       run: |
         echo "Checking deployment status"
-        helm status backend-app
+        helm status backend-service
         echo "Deployment status check completed"
     
