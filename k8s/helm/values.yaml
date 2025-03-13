@@ -31,3 +31,9 @@ database:
   user: ""  # GitHub Actions에서 덮어씀
   password: ""  # GitHub Actions에서 덮어씀
   name: ""  # GitHub Actions에서 덮어씀
+
+# AWS 설정 (기본값, GitHub Actions에서 덮어씀)
+aws:
+  region: ""  # GitHub Actions에서 덮어씀
+  accessKeyId: ""  # GitHub Actions에서 덮어씀
+  secretAccessKey: ""  # GitHub Actions에서 덮어씀

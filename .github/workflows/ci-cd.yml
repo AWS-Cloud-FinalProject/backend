@@ -95,6 +95,12 @@ jobs:
           user: "${{ secrets.DB_USER }}"
           password: "${{ secrets.DB_PASSWORD }}"
           name: "${{ secrets.DB_NAME }}"
+          
+        # AWS 설정
+        aws:
+          region: "${{ secrets.AWS_REGION }}"
+          accessKeyId: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          secretAccessKey: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         EOF
         echo "values-generated.yaml created successfully"
 

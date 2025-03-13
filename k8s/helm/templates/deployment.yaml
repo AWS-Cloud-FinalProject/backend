@@ -35,5 +35,11 @@ spec:
               value: {{ .Values.database.password | quote }}
             - name: DB_NAME
               value: {{ .Values.database.name | quote }}
+            - name: AWS_REGION
+              value: {{ .Values.aws.region | quote }}
+            - name: AWS_ACCESS_KEY_ID
+              value: {{ .Values.aws.accessKeyId | quote }}
+            - name: AWS_SECRET_ACCESS_KEY
+              value: {{ .Values.aws.secretAccessKey | quote }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }} 
