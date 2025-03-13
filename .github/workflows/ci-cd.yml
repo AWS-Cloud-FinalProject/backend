@@ -33,7 +33,7 @@ jobs:
 
     # 5. AWS 자격 증명 설정
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
+      uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -41,31 +41,37 @@ jobs:
 
     # 6. ECR 로그인
     - name: Login to Amazon ECR
+      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    # 7. 버전 태그 추출
-    - name: Extract version tag
-      id: get_version
+    # 7. Update kubeconfig for EKS
+    - name: Update kubeconfig for EKS
       run: |
-        VERSION_TAG=$(echo $GITHUB_REF | sed 's|refs/tags/v||')
-        echo "VERSION_TAG=$VERSION_TAG" >> $GITHUB_ENV
-        echo "Extracted version: $VERSION_TAG"
+        aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }}
+        kubectl config current-context
+        echo "kubeconfig updated successfully"
 
-    # 8. Docker 이미지 빌드
+    # 8. 버전 태그 추출
+    - name: Extract version tag
+      run: |
+        echo "VERSION_TAG=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        echo "Extracted version tag: ${{ env.VERSION_TAG }}"
+
+    # 9. Docker 이미지 빌드
     - name: Build Docker image
       run: |
         echo "Building Docker image with tag: ${{ env.VERSION_TAG }}"
         docker build -t ${{ secrets.ECR_REPOSITORY_URI }}:${{ env.VERSION_TAG }} .
         echo "Docker build completed"
 
-    # 9. 이미지 태그 설정
+    # 10. 이미지 태그 설정
     - name: Tag Docker image
       run: |
         echo "Tagging image as latest"
         docker tag ${{ secrets.ECR_REPOSITORY_URI }}:${{ env.VERSION_TAG }} ${{ secrets.ECR_REPOSITORY_URI }}:latest
         echo "Image tagged successfully"
 
-    # 10. ECR에 이미지 푸시
+    # 11. ECR에 이미지 푸시
     - name: Push Docker image to ECR
       run: |
         echo "Pushing version tag: ${{ env.VERSION_TAG }}"
@@ -74,7 +80,7 @@ jobs:
         docker push ${{ secrets.ECR_REPOSITORY_URI }}:latest
         echo "Image push completed"
 
-    # 11. values-generated.yaml 파일 생성
+    # 12. values-generated.yaml 파일 생성
     - name: Create values-generated.yaml
       run: |
         echo "Creating values-generated.yaml with image tag: ${{ env.VERSION_TAG }}"
@@ -89,14 +95,14 @@ jobs:
         EOF
         echo "values-generated.yaml created successfully"
 
-    # 12. Helm 차트 검증
+    # 13. Helm 차트 검증
     - name: Validate Helm chart
       run: |
         echo "Validating Helm chart"
         helm lint ./k8s/helm
         echo "Helm chart validation completed"
 
-    # 13. Helm으로 배포
+    # 14. Helm으로 배포
     - name: Deploy with Helm
       run: |
         echo "Deploying to Kubernetes with Helm"
@@ -106,7 +112,7 @@ jobs:
           --namespace default
         echo "Helm deployment completed"
 
-    # 14. 배포 상태 확인
+    # 15. 배포 상태 확인
     - name: Check deployment status
       run: |
         echo "Checking deployment status"
