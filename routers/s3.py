@@ -3,7 +3,6 @@ from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 import os
 import logging
 from fastapi import UploadFile
-from io import BytesIO
 from dotenv import load_dotenv
 from typing import Optional
 from urllib.parse import urlparse
