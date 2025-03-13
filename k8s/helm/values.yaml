@@ -37,3 +37,8 @@ aws:
   region: ""  # GitHub Actions에서 덮어씀
   accessKeyId: ""  # GitHub Actions에서 덮어씀
   secretAccessKey: ""  # GitHub Actions에서 덮어씀
+
+# Cognito 설정 (기본값, GitHub Actions에서 덮어씀)
+cognito:
+  userPoolId: ""  # GitHub Actions에서 덮어씀
+  clientId: ""  # GitHub Actions에서 덮어씀

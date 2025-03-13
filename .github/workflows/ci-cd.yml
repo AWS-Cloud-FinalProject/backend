@@ -101,6 +101,11 @@ jobs:
           region: "${{ secrets.AWS_REGION }}"
           accessKeyId: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           secretAccessKey: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          
+        # Cognito 설정
+        cognito:
+          userPoolId: "${{ secrets.COGNITO_USER_POOL }}"
+          clientId: "${{ secrets.COGNITO_CLIENT_ID }}"
         EOF
         echo "values-generated.yaml created successfully"
 

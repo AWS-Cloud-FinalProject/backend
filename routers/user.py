@@ -19,7 +19,7 @@ cognito_client = boto3.client('cognito-idp',
 )
 
 # 상수 정의
-USER_POOL_ID = os.getenv('COGNITO_USER_POOL_ID')
+USER_POOL_ID = os.getenv('COGNITO_USER_POOL')
 CLIENT_ID = os.getenv('COGNITO_CLIENT_ID')
 
 if not USER_POOL_ID or not CLIENT_ID:

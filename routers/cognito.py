@@ -10,7 +10,7 @@ cognito_client = boto3.client('cognito-idp',
     region_name=os.getenv('AWS_REGION')
 )
 
-USER_POOL_ID = os.getenv('COGNITO_USER_POOL_ID')
+USER_POOL_ID = os.getenv('COGNITO_USER_POOL')
 CLIENT_ID = os.getenv('COGNITO_CLIENT_ID')
 
 def verify_cognito_token(token):

@@ -41,5 +41,9 @@ spec:
               value: {{ .Values.aws.accessKeyId | quote }}
             - name: AWS_SECRET_ACCESS_KEY
               value: {{ .Values.aws.secretAccessKey | quote }}
+            - name: COGNITO_USER_POOL
+              value: {{ .Values.cognito.userPoolId | quote }}
+            - name: COGNITO_CLIENT_ID
+              value: {{ .Values.cognito.clientId | quote }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }} 
