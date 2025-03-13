@@ -89,9 +89,12 @@ jobs:
           repository: ${{ secrets.ECR_REPOSITORY_URI }}
           tag: ${{ env.VERSION_TAG }}
         
-        # 필요한 경우 여기에 추가 환경 변수 설정
-        # env:
-        #   AWS_REGION: "${{ secrets.AWS_REGION }}"
+        # 데이터베이스 연결 정보
+        database:
+          host: "${{ secrets.DB_HOST }}"
+          user: "${{ secrets.DB_USER }}"
+          password: "${{ secrets.DB_PASSWORD }}"
+          name: "${{ secrets.DB_NAME }}"
         EOF
         echo "values-generated.yaml created successfully"
 

@@ -24,3 +24,10 @@ resources:
   limits:
     cpu: 500m
     memory: 512Mi
+
+# 데이터베이스 설정 (기본값, GitHub Actions에서 덮어씀)
+database:
+  host: ""  # GitHub Actions에서 덮어씀
+  user: ""  # GitHub Actions에서 덮어씀
+  password: ""  # GitHub Actions에서 덮어씀
+  name: ""  # GitHub Actions에서 덮어씀
