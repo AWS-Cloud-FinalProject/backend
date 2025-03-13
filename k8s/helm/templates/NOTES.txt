@@ -1,0 +1,14 @@
+1. 애플리케이션이 배포되었습니다!
+
+애플리케이션에 접근하기 위한 URL:
+{{- if eq .Values.service.type "ClusterIP" }}
+  kubectl port-forward svc/{{ .Release.Name }} {{ .Values.service.port }}:{{ .Values.service.port }}
+  http://localhost:{{ .Values.service.port }}
+{{- else if eq .Values.service.type "LoadBalancer" }}
+  http://{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
+  또는 LoadBalancer의 외부 IP를 확인하세요:
+  kubectl get svc {{ .Release.Name }} --namespace {{ .Release.Namespace }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+{{- end }}
+
+2. 배포 상태 확인:
+  kubectl get pods -l "app.kubernetes.io/instance={{ .Release.Name }}" 

@@ -16,6 +16,11 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.12'
+        
+    - name: Set up Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: 'latest'
 
     - name: Install dependencies
       run: |
@@ -34,8 +39,26 @@ jobs:
 
     - name: Build and Push Docker image
       run: |
+        # 버전 태그 추출 (v1.0.0 -> 1.0.0)
         VERSION_TAG=$(echo $GITHUB_REF | sed 's|refs/tags/v||')
+        
+        # Docker 이미지 빌드 및 푸시
         docker build -t ${{ secrets.ECR_REPOSITORY_URI }}:${VERSION_TAG} .
         docker tag ${{ secrets.ECR_REPOSITORY_URI }}:${VERSION_TAG} ${{ secrets.ECR_REPOSITORY_URI }}:latest
         docker push ${{ secrets.ECR_REPOSITORY_URI }}:${VERSION_TAG}
         docker push ${{ secrets.ECR_REPOSITORY_URI }}:latest
+        
+        # 임시 values.yaml 파일 생성 (민감한 정보 포함)
+        # 이 파일은 Git에 커밋되지 않고 GitHub Actions에서만 사용됨
+        cat > k8s/helm/values-generated.yaml <<EOF
+        # 민감한 환경 변수 설정
+        image:
+          repository: ${{ secrets.ECR_REPOSITORY_URI }}
+          tag: ${VERSION_TAG}
+        
+        # Helm으로 배포 (임시 values 파일 사용)
+        helm upgrade --install backend-app ./k8s/helm \
+          -f k8s/helm/values.yaml \
+          -f k8s/helm/values-generated.yaml \
+          --namespace default
+    

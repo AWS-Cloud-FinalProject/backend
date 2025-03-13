@@ -1,0 +1,26 @@
+# 기본 values.yaml 파일
+# 이 파일은 Git에 저장되며 민감하지 않은 기본값만 포함합니다.
+# 민감한 정보는 GitHub Actions에서 생성하는 values-generated.yaml에서 설정됩니다.
+
+# 애플리케이션 복제본 수
+replicaCount: 2
+
+# 이미지 설정 (GitHub Actions에서 덮어씀)
+image:
+  repository: ""  # GitHub Actions에서 덮어씀
+  tag: ""         # GitHub Actions에서 덮어씀
+  pullPolicy: Always
+
+# 서비스 설정
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8000
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
