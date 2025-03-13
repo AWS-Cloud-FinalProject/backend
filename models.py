@@ -31,8 +31,4 @@ class EditTodo(BaseModel):
     status : str
     title : str
     contents : str
-<<<<<<< HEAD
-    todo_order : int
-=======
     todo_order: int
->>>>>>> 82a27821f189a8751c9a961c7464eb357728109c
