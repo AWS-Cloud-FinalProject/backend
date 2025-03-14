@@ -6,8 +6,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: { { .Values.repoURL } }
-    targetRevision: { { .Values.targetRevision } }
+    repoURL: {{ .Values.repoURL }}
+    targetRevision: {{ .Values.targetRevision }}
     path: helm/backend
     helm:
       valueFiles:
