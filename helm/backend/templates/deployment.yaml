@@ -31,7 +31,7 @@ spec:
               value: "{{ .Values.aws.accessKeyId }}"
             - name: AWS_SECRET_ACCESS_KEY
               value: "{{ .Values.aws.secretAccessKey }}"
-            - name: COGNITO_USER_POOL_ID
+            - name: COGNITO_USER_POOL
               value: "{{ .Values.cognito.userPoolId }}"
             - name: COGNITO_CLIENT_ID
               value: "{{ .Values.cognito.clientId }}"
