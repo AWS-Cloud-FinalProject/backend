@@ -6,16 +6,16 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: {{ .Values.repoURL }}
-    targetRevision: {{ .Values.targetRevision }}
+    repoURL: { { .Values.repoURL } }
+    targetRevision: { { .Values.targetRevision } }
     path: helm/backend
     helm:
       valueFiles:
         - values.yaml
       values: |
         image:
-          repository: ${ECR_REPOSITORY_URI}/webtest
-          tag: ${VERSION_TAG}
+          repository: {{ .Values.backend.image.repository }}
+          tag: {{ .Values.backend.image.tag }}
           pullPolicy: Always
   destination:
     server: https://kubernetes.default.svc
