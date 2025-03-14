@@ -154,7 +154,7 @@ jobs:
           backend:
             image:
               repository: "${{ secrets.ECR_REPOSITORY_URI }}/backend"
-              tag: "${{ needs.docker.outputs.version_tag }}"
+              tag: "${{ needs.version.outputs.version_tag }}"
             
             database:
               host: "${{ secrets.DB_HOST }}"
@@ -176,7 +176,7 @@ jobs:
           cat > helm/backend/values.yaml << EOF
           image:
             repository: "${{ secrets.ECR_REPOSITORY_URI }}/backend"
-            tag: "${{ needs.docker.outputs.version_tag }}"
+            tag: "${{ needs.version.outputs.version_tag }}"
             pullPolicy: Always
 
           database:
