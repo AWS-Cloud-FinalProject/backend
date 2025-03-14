@@ -103,6 +103,10 @@ jobs:
           # Ensure directories exist
           mkdir -p helm/apps helm/backend
 
+          # Update the ArgoCD Application with proper environment variables
+          sed -i "s|\${ECR_REPOSITORY_URI}|${{ secrets.ECR_REPOSITORY_URI }}|g" helm/apps/templates/backend-application.yaml
+          sed -i "s|\${VERSION_TAG}|${{ env.VERSION_TAG }}|g" helm/apps/templates/backend-application.yaml
+
           # Create values override file for apps chart
           cat > helm/apps/values.yaml << EOF
           repoURL: https://github.com/AWS-Cloud-FinalProject/backend.git

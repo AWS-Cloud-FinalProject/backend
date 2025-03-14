@@ -1,5 +1,5 @@
 image:
-  repository: ${ECR_REPOSITORY_URI}/webtest
+  repository: webtest
   tag: latest
   pullPolicy: Always
 
