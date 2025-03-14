@@ -1,0 +1,23 @@
+image:
+  repository: webtest
+  tag: latest
+  pullPolicy: Always
+
+database:
+  host: ''
+  user: ''
+  password: ''
+  name: ''
+
+aws:
+  region: ''
+  accessKeyId: ''
+  secretAccessKey: ''
+
+cognito:
+  userPoolId: ''
+  clientId: ''
+
+service:
+  type: ClusterIP
+  port: 8000

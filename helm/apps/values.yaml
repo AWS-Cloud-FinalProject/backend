@@ -1,0 +1,19 @@
+backend:
+  image:
+    repository: webtest
+    tag: latest
+
+  database:
+    host: ''
+    user: ''
+    password: ''
+    name: ''
+
+  aws:
+    region: ''
+    accessKeyId: ''
+    secretAccessKey: ''
+
+  cognito:
+    userPoolId: ''
+    clientId: ''
