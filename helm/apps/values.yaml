@@ -1,6 +1,6 @@
 repoURL: https://github.com/AWS-Cloud-FinalProject/frontend.git
 
-targetRevision: yong
+targetRevision: production
 
 backend:
   image:
