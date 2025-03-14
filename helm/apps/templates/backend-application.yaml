@@ -6,8 +6,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: {{ .Values.repoURL }}
-    targetRevision: {{ .Values.targetRevision }}
+    repoURL: { { .Values.repoURL } }
+    targetRevision: { { .Values.targetRevision } }
     path: helm/backend
     helm:
       valueFiles:
@@ -17,6 +17,18 @@ spec:
           repository: {{ .Values.backend.image.repository }}
           tag: {{ .Values.backend.image.tag }}
           pullPolicy: Always
+        database:
+          host: {{ .Values.backend.database.host }}
+          user: {{ .Values.backend.database.user }}
+          password: {{ .Values.backend.database.password }}
+          name: {{ .Values.backend.database.name }}
+        aws:
+          region: {{ .Values.backend.aws.region }}
+          accessKeyId: {{ .Values.backend.aws.accessKeyId }}
+          secretAccessKey: {{ .Values.backend.aws.secretAccessKey }}
+        cognito:
+          userPoolId: {{ .Values.backend.cognito.userPoolId }}
+          clientId: {{ .Values.backend.cognito.clientId }}
   destination:
     server: https://kubernetes.default.svc
     namespace: default
