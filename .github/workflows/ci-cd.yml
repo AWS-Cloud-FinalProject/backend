@@ -64,6 +64,12 @@ jobs:
 
           # Push both version tag and latest tag
           docker push ${{ secrets.ECR_REPOSITORY_URI }}/webtest:${{ env.VERSION_TAG }}
+          docker push ${{ secrets.ECR_REPOSITORY_URI }}/webtest:latest
+
+          # Debug output
+          echo "Pushed images:"
+          echo "  - ${{ secrets.ECR_REPOSITORY_URI }}/webtest:${{ env.VERSION_TAG }}"
+          echo "  - ${{ secrets.ECR_REPOSITORY_URI }}/webtest:latest"
 
   deploy:
     needs: [docker]
