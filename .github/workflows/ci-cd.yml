@@ -58,7 +58,11 @@ jobs:
 
       - name: Build and push Docker image
         run: |
+          # Build the image
           docker build -t ${{ secrets.ECR_REPOSITORY_URI }}/webtest:${{ env.VERSION_TAG }} .
+          docker tag ${{ secrets.ECR_REPOSITORY_URI }}/webtest:${{ env.VERSION_TAG }} ${{ secrets.ECR_REPOSITORY_URI }}/webtest:latest
+
+          # Push both version tag and latest tag
           docker push ${{ secrets.ECR_REPOSITORY_URI }}/webtest:${{ env.VERSION_TAG }}
 
   deploy:
