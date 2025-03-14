@@ -116,7 +116,7 @@ jobs:
           docker push ${{ secrets.ECR_REPOSITORY_URI }}/backend:latest
 
   deploy:
-    needs: [docker]
+    needs: [docker, version]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
