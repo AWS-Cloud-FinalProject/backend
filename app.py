@@ -6,11 +6,6 @@ from routers.cognito import cognito_client, CLIENT_ID
 load_dotenv()
 
 app = FastAPI()
-'''
-1. 유저
-2. 일기
-3. 투두
-'''
 
 # 서버 상태 확인
 @app.get("/ping")

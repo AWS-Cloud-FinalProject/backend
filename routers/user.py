@@ -5,7 +5,6 @@ from routers.cognito import cognito_client, CLIENT_ID, USER_POOL_ID
 from functions import verify_token
 import bcrypt
 from dotenv import load_dotenv
-from functions import create_jwt_token
 import os
 import boto3
 

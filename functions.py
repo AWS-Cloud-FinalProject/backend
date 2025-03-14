@@ -1,15 +1,5 @@
-from datetime import datetime, timedelta, date
-import jwt
-import os
 from fastapi import HTTPException, Header
 from routers.cognito import verify_cognito_token
-
-def create_jwt_token(data: dict, expires_delta: timedelta):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + expires_delta
-    to_encode.update({"exp": expire})
-    return jwt.encode(data, os.getenv('SECRET_KEY'), algorithm=os.getenv('ALGORITHM'))
-
 
 def verify_token(access_token: str = Header(None)):
     """Cognito 토큰 검증 함수"""

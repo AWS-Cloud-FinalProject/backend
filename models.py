@@ -1,7 +1,4 @@
 from pydantic import BaseModel
-from datetime import date
-from fastapi import Form
-from typing import Optional
 
 class SignUp(BaseModel):
     id: str
@@ -14,21 +11,21 @@ class SignIn(BaseModel):
     password: str
 
 class WithDraw(BaseModel):
-    password: str  # 현재 비밀번호 확인용
+    password: str
 
 class EditPW(BaseModel):
-    password: str      # 현재 비밀번호
-    new_password: str  # 새 비밀번호
+    password: str
+    new_password: str
 
 class CreateTodo(BaseModel):
     status: str
     title: str
     contents: str
-    todo_order: int  # todo_order를 선택적으로 변경
+    todo_order: int
 
 class EditTodo(BaseModel):
-    todo_num : int
-    status : str
-    title : str
-    contents : str
+    todo_num: int
+    status: str
+    title: str
+    contents: str
     todo_order: int
