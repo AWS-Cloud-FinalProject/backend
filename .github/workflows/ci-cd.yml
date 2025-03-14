@@ -96,7 +96,7 @@ jobs:
           # Create values override file for apps chart
           cat > helm/apps/values.yaml << EOF
           repoURL: https://github.com/AWS-Cloud-FinalProject/backend.git
-          targetRevision: v*.*.*
+          targetRevision: yong
           backend:
             image:
               repository: ${{ secrets.ECR_REPOSITORY_URI }}/webtest
