@@ -1,3 +1,7 @@
+repoURL: https://github.com/AWS-Cloud-FinalProject/frontend.git
+
+targetRevision: yong
+
 backend:
   image:
     repository: webtest
