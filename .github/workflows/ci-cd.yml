@@ -2,8 +2,8 @@ name: Backend CI/CD with Docker and EKS
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches:
+      - yong
 
 permissions:
   contents: write
