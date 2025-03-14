@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      nodeSelector:
+        role: back-node-group
+      containers:
+        - name: backend
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DB_HOST
+              value: "{{ .Values.database.host }}"
+            - name: DB_USER
+              value: "{{ .Values.database.user }}"
+            - name: DB_PASSWORD
+              value: "{{ .Values.database.password }}"
+            - name: DB_NAME
+              value: "{{ .Values.database.name }}"
+            - name: AWS_REGION
+              value: "{{ .Values.aws.region }}"
+            - name: AWS_ACCESS_KEY_ID
+              value: "{{ .Values.aws.accessKeyId }}"
+            - name: AWS_SECRET_ACCESS_KEY
+              value: "{{ .Values.aws.secretAccessKey }}"
+            - name: COGNITO_USER_POOL
+              value: "{{ .Values.cognito.userPoolId }}"
+            - name: COGNITO_CLIENT_ID
+              value: "{{ .Values.cognito.clientId }}"

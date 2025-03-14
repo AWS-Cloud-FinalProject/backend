@@ -1,0 +1,23 @@
+repoURL: https://github.com/AWS-Cloud-FinalProject/frontend.git
+
+targetRevision: production
+
+backend:
+  image:
+    repository: backend
+    tag: latest
+
+  database:
+    host: ''
+    user: ''
+    password: ''
+    name: ''
+
+  aws:
+    region: ''
+    accessKeyId: ''
+    secretAccessKey: ''
+
+  cognito:
+    userPoolId: ''
+    clientId: ''

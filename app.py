@@ -1,19 +1,11 @@
-import os
-from datetime import timedelta
 from fastapi import FastAPI, HTTPException, Header
-from routers import user, todo
-from functions import create_jwt_token
-import jwt
+from routers import user, todo, diary
 from dotenv import load_dotenv
+from routers.cognito import cognito_client, CLIENT_ID
 
 load_dotenv()
 
 app = FastAPI()
-'''
-1. 유저
-2. 일기
-3. 투두
-'''
 
 # 서버 상태 확인
 @app.get("/ping")
@@ -27,21 +19,23 @@ def refresh_access_token(refresh_token: str = Header(None)):
     """
     if not refresh_token:
         raise HTTPException(status_code=403, detail="Refresh Token required")
+    
     try:
-        payload = jwt.decode(refresh_token, os.getenv('SECRET_KEY'), algorithms=os.getenv('ALGORITHM'))
-        user_id = payload.get("sub")
-        if not user_id:
-            raise HTTPException(status_code=403, detail="Invalid Refresh Token")
-
-        # 새로운 Access Token 발급
-        new_access_token = create_jwt_token({"sub": user_id}, timedelta(minutes=180))
-        return {"access_token": new_access_token}
-
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=403, detail="Refresh Token expired")
-    except jwt.InvalidTokenError:
+        response = cognito_client.initiate_auth(
+            ClientId=CLIENT_ID,
+            AuthFlow='REFRESH_TOKEN_AUTH',
+            AuthParameters={
+                'REFRESH_TOKEN': refresh_token
+            }
+        )
+        
+        return {
+            "access_token": response['AuthenticationResult']['AccessToken']
+        }
+    except Exception as e:
         raise HTTPException(status_code=403, detail="Invalid Refresh Token")
 
 # Routers
 app.include_router(user.router)
 app.include_router(todo.router)
+app.include_router(diary.router)
