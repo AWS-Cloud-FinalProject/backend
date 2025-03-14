@@ -194,6 +194,8 @@ jobs:
 
           # Create values file for backend chart
           cat > helm/backend/values.yaml << EOF
+          replicaCount: 3
+          
           image:
             repository: "${{ secrets.ECR_REPOSITORY_URI }}/backend"
             tag: "${{ needs.version.outputs.version_tag }}"
