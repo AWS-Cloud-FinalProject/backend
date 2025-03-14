@@ -148,7 +148,7 @@ jobs:
       - name: Apply Helm Chart
         run: |
           # Apply the apps chart using Helm with debug output
-          helm upgrade --install apps helm/apps -n argocd --create-namespace --debug
+          helm upgrade --install backend-apps helm/apps -n argocd --create-namespace --debug
 
       - name: Cleanup old ReplicaSets
         run: |
