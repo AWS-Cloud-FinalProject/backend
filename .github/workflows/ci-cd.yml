@@ -81,8 +81,8 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git tag -a ${{ steps.version.outputs.NEW_TAG }} -m "Release ${{ steps.version.outputs.NEW_TAG }}"
-          git push origin ${{ steps.version.outputs.NEW_TAG }}
+          git tag -a ${{ steps.generate_version.outputs.NEW_TAG }} -m "Release ${{ steps.generate_version.outputs.NEW_TAG }}"
+          git push origin ${{ steps.generate_version.outputs.NEW_TAG }}
 
   docker:
     needs: [build, version]
@@ -108,12 +108,12 @@ jobs:
       - name: Build and push Docker image
         run: |
           # Build and tag images
-          docker build -t ${{ secrets.ECR_REPOSITORY_URI }}/webtest:${{ needs.version.outputs.version_tag }} .
-          docker tag ${{ secrets.ECR_REPOSITORY_URI }}/webtest:${{ needs.version.outputs.version_tag }} ${{ secrets.ECR_REPOSITORY_URI }}/webtest:latest
+          docker build -t ${{ secrets.ECR_REPOSITORY_URI }}/backend:${{ needs.version.outputs.version_tag }} .
+          docker tag ${{ secrets.ECR_REPOSITORY_URI }}/backend:${{ needs.version.outputs.version_tag }} ${{ secrets.ECR_REPOSITORY_URI }}/backend:latest
 
           # Push images
-          docker push ${{ secrets.ECR_REPOSITORY_URI }}/webtest:${{ needs.version.outputs.version_tag }}
-          docker push ${{ secrets.ECR_REPOSITORY_URI }}/webtest:latest
+          docker push ${{ secrets.ECR_REPOSITORY_URI }}/backend:${{ needs.version.outputs.version_tag }}
+          docker push ${{ secrets.ECR_REPOSITORY_URI }}/backend:latest
 
   deploy:
     needs: [docker]
@@ -153,7 +153,7 @@ jobs:
           targetRevision: yong
           backend:
             image:
-              repository: "${{ secrets.ECR_REPOSITORY_URI }}/webtest"
+              repository: "${{ secrets.ECR_REPOSITORY_URI }}/backend"
               tag: "${{ needs.docker.outputs.version_tag }}"
             
             database:
@@ -175,7 +175,7 @@ jobs:
           # Create values file for backend chart
           cat > helm/backend/values.yaml << EOF
           image:
-            repository: "${{ secrets.ECR_REPOSITORY_URI }}/webtest"
+            repository: "${{ secrets.ECR_REPOSITORY_URI }}/backend"
             tag: "${{ needs.docker.outputs.version_tag }}"
             pullPolicy: Always
 

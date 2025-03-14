@@ -1,5 +1,5 @@
 image:
-  repository: webtest
+  repository: backend
   tag: latest
   pullPolicy: Always
 
