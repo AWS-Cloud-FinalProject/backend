@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-deployment
+  name: {{ .Release.Name }}-deployment
 spec:
   selector:
     matchLabels:
@@ -13,25 +13,25 @@ spec:
     spec:
       containers:
         - name: backend
-          image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
             - containerPort: 8000
           env:
             - name: DB_HOST
-              value: { { .Values.database.host | quote } }
+              value: "{{ .Values.database.host }}"
             - name: DB_USER
-              value: { { .Values.database.user | quote } }
+              value: "{{ .Values.database.user }}"
             - name: DB_PASSWORD
-              value: { { .Values.database.password | quote } }
+              value: "{{ .Values.database.password }}"
             - name: DB_NAME
-              value: { { .Values.database.name | quote } }
+              value: "{{ .Values.database.name }}"
             - name: AWS_REGION
-              value: { { .Values.aws.region | quote } }
+              value: "{{ .Values.aws.region }}"
             - name: AWS_ACCESS_KEY_ID
-              value: { { .Values.aws.accessKeyId | quote } }
+              value: "{{ .Values.aws.accessKeyId }}"
             - name: AWS_SECRET_ACCESS_KEY
-              value: { { .Values.aws.secretAccessKey | quote } }
+              value: "{{ .Values.aws.secretAccessKey }}"
             - name: COGNITO_USER_POOL_ID
-              value: { { .Values.cognito.userPoolId | quote } }
+              value: "{{ .Values.cognito.userPoolId }}"
             - name: COGNITO_CLIENT_ID
-              value: { { .Values.cognito.clientId | quote } }
+              value: "{{ .Values.cognito.clientId }}"
