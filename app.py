@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Header
+from fastapi.middleware.cors import CORSMiddleware
 from routers import user, todo, diary
 from dotenv import load_dotenv
 from routers.cognito import cognito_client, CLIENT_ID
@@ -6,6 +7,18 @@ from routers.cognito import cognito_client, CLIENT_ID
 load_dotenv()
 
 app = FastAPI()
+
+origins = [
+    "http://wiary.site",  # 프론트엔드 도메인만 허용
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # 허용할 출처 목록
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "DELETE", "PATCH"],  # 허용할 HTTP 메서드
+    allow_headers=["*"],  # 모든 헤더 허용
+)
 
 # 서버 상태 확인
 @app.get("/ping")
