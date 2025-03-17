@@ -1,12 +1,10 @@
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
 from database import get_db_connection
 from functions import verify_token, string_to_date
-from routers.s3 import upload_to_s3, delete_file_from_s3, update_s3_file
+from routers.s3 import upload_to_s3, delete_file_from_s3
 from datetime import date
 from urllib.parse import urlparse
 from typing import Optional
-import pymysql.cursors
-import os
 
 router = APIRouter()
 
@@ -82,7 +80,7 @@ def add_diary(
     photo_url = None
 
     if photo:
-        photo_url = upload_to_s3(photo, "webdiary", str(user_id), str(diary_date))
+        photo_url = upload_to_s3("diary", photo, "webdiary", str(user_id), str(diary_date))
     with db.cursor() as cursor:
         sql = "INSERT INTO DIARY (id, title, contents, emotion, photo, diary_date) VALUES (%s, %s, %s, %s, %s, %s)"
         cursor.execute(sql, (user_id, title, contents, emotion, photo_url, diary_date))
@@ -158,7 +156,7 @@ def edit_diary(
         elif photo_provided and photo:
             if old_photo_url:
                 delete_file_from_s3(user_id, old_photo_url)  # 기존 파일 삭제
-            photo_url = upload_to_s3(photo, "webdiary", str(user_id), str(diary_date))  # 새 파일 업로드
+            photo_url = upload_to_s3("diary", photo, "webdiary", str(user_id), str(diary_date))  # 새 파일 업로드
 
         # DB 업데이트
         sql_update = """
