@@ -5,7 +5,6 @@ from routers.cognito import cognito_client, CLIENT_ID, USER_POOL_ID
 from functions import verify_token
 import bcrypt
 from dotenv import load_dotenv
-from functions import create_jwt_token
 import os
 import boto3
 
@@ -19,7 +18,7 @@ cognito_client = boto3.client('cognito-idp',
 )
 
 # 상수 정의
-USER_POOL_ID = os.getenv('COGNITO_USER_POOL_ID')
+USER_POOL_ID = os.getenv('COGNITO_USER_POOL')
 CLIENT_ID = os.getenv('COGNITO_CLIENT_ID')
 
 if not USER_POOL_ID or not CLIENT_ID:
@@ -32,11 +31,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 router = APIRouter()
-
-# @router.get("/protected")
-# def protected_route(token: str = Depends(verify_token)):
-#     """보호된 API 엔드포인트"""
-#     return {"message": "Access granted", "user": token["sub"]}
 
 # 회원가입
 @router.post("/sign-up")
