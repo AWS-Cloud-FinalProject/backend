@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Header
+from fastapi.middleware.cors import CORSMiddleware
 from routers import user, todo, diary, community_post
 from dotenv import load_dotenv
 from routers.cognito import cognito_client, CLIENT_ID
