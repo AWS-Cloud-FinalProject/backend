@@ -26,9 +26,9 @@ def upload_to_s3(
 ) -> str:
 # S3 클라이언트 설정 
 s3_client = boto3.client('s3', 
-                         aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'), 
-                         aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'), 
-                         region_name=os.getenv('AWS_REGION'))
+aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'), 
+aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'), 
+region_name=os.getenv('AWS_REGION'))
 
 def upload_to_s3(ver: str, photo: UploadFile, bucket_name: str, folder_name: str, file_name: str, expiration: int = 3600) -> str:
     try:
