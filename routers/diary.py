@@ -66,7 +66,7 @@ def get_diary_detail(
     return result
 
 # 일기 작성
-@router.post("/add-diary")
+@router.post("/create-diary")
 def add_diary(
     diary_date: date = Form(...),
     title: str = Form(...),

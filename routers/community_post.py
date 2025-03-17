@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, File
+from fastapi import APIRouter, Depends, UploadFile, File, Form
 from database import get_db_connection
 from functions import verify_token
 from routers.s3 import upload_to_s3, delete_file_from_s3
@@ -8,13 +8,19 @@ router = APIRouter()
 
 # 글 목록 가져오기
 @router.get("/get-posts")
-def get_posts(_: dict = Depends(verify_token)):
+def get_posts(user: dict = Depends(verify_token)):
     db = get_db_connection()
+    user_id = user["username"]
     try:
         with db.cursor() as cursor:
             sql = "SELECT * FROM COMMUNITY_POSTS ORDER BY created_at DESC"
             cursor.execute(sql)
             result = cursor.fetchall()
+
+            # 내 글 여부를 판단하여 mine 필드 추가
+            for post in result:
+                post["mine"] = True if post["user_id"] == user_id else False
+
         return result
     finally:
         db.close()
@@ -34,10 +40,10 @@ def get_my_posts(user: dict = Depends(verify_token)):
         db.close()
 
 # 글 작성
-@router.post("/new-post")
+@router.post("/create-post")
 def create_post(
-    content: str, 
-    photo: Optional[UploadFile] = File(None),  # 이미지 파일을 받을 수 있게 변경
+    contents: str = Form(...),
+    photo: UploadFile = File(None),
     user: dict = Depends(verify_token)
 ):
     db = get_db_connection()
@@ -48,8 +54,8 @@ def create_post(
     try:
         with db.cursor() as cursor:
             # INSERT 쿼리 실행
-            sql = "INSERT INTO COMMUNITY_POSTS (user_id, content) VALUES (%s, %s)"
-            cursor.execute(sql, (user_id, content))
+            sql = "INSERT INTO COMMUNITY_POSTS (user_id, contents) VALUES (%s, %s)"
+            cursor.execute(sql, (user_id, contents))
             # 방금 삽입된 post_id 가져오기
             post_id = cursor.lastrowid  # AUTO_INCREMENT로 생성된 ID
 
@@ -72,9 +78,9 @@ def create_post(
 @router.patch("/edit-post/{post_id}")
 def update_post(
     post_id: int, 
-    content: str, 
-    photo: Optional[UploadFile] = File(None),  # 이미지 파일을 받을 수 있게 변경
-    photo_provided: Optional[bool] = False,  # 프론트엔드에서 사진이 변경되었는지 여부를 전달
+    contents: str = Form(...),
+    photo: Optional[UploadFile] = File(None),  # 빈 값 가능
+    photo_provided: Optional[bool] = Form(False),  # 프론트엔드에서 사진 변경 여부 전달
     user: dict = Depends(verify_token)
 ):
     db = get_db_connection()
@@ -104,10 +110,10 @@ def update_post(
             # 게시글 내용 업데이트
             sql_update = """
             UPDATE COMMUNITY_POSTS 
-            SET content = %s, photo = %s 
+            SET contents = %s, photo = %s 
             WHERE id = %s AND user_id = %s
             """
-            cursor.execute(sql_update, (content, photo_url, post_id, user_id))
+            cursor.execute(sql_update, (contents, photo_url, post_id, user_id))
         db.commit()
     finally:
         db.close()

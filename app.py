@@ -44,5 +44,4 @@ def refresh_access_token(refresh_token: str = Header(None)):
 app.include_router(user.router, tags=["User"])
 app.include_router(todo.router, tags=["Todo"])
 app.include_router(diary.router, tags=["Diary"])
-app.include_router(community_follow.router, tags=["Community Follow"])
 app.include_router(community_post.router, tags=["Community Post"])
