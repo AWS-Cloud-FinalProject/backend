@@ -11,8 +11,10 @@ spec:
       labels:
         app: backend
     spec:
-      nodeSelector:
-        role: back-node-group
+      # 옵션 1: nodeSelector 제거 (모든 노드에서 실행 가능)
+      # 옵션 2: 클러스터에 존재하는 nodeSelector로 변경 
+      # nodeSelector:
+      #   role: back-node-group
       containers:
         - name: backend
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
