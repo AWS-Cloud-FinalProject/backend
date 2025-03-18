@@ -1,11 +1,24 @@
 from fastapi import FastAPI, HTTPException, Header
-from routers import user, todo, diary
+from fastapi.middleware.cors import CORSMiddleware
+from routers import user, todo, diary, community_post
 from dotenv import load_dotenv
 from routers.cognito import cognito_client, CLIENT_ID
 
 load_dotenv()
 
 app = FastAPI()
+
+origins = [
+    "http://wiary.site",  # 프론트엔드 도메인만 허용
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # 허용할 출처 목록
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "DELETE", "PATCH"],  # 허용할 HTTP 메서드
+    allow_headers=["*"],  # 모든 헤더 허용
+)
 
 # 서버 상태 확인
 @app.get("/ping")
@@ -36,6 +49,7 @@ def refresh_access_token(refresh_token: str = Header(None)):
         raise HTTPException(status_code=403, detail="Invalid Refresh Token")
 
 # Routers
-app.include_router(user.router)
-app.include_router(todo.router)
-app.include_router(diary.router)
+app.include_router(user.router, tags=["User"])
+app.include_router(todo.router, tags=["Todo"])
+app.include_router(diary.router, tags=["Diary"])
+app.include_router(community_post.router, tags=["Community Post"])

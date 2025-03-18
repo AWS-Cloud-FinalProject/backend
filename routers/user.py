@@ -38,11 +38,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 router = APIRouter()
 
-# @router.get("/protected")
-# def protected_route(token: str = Depends(verify_token)):
-#     """보호된 API 엔드포인트"""
-#     return {"message": "Access granted", "user": token["sub"]}
-
 # 회원가입
 @router.post("/sign-up")
 def create_user(user: SignUp):
