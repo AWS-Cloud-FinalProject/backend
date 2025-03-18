@@ -19,7 +19,7 @@ def get_posts(user: dict = Depends(verify_token)):
 
             # 내 글 여부를 판단하여 mine 필드 추가
             for post in result:
-                post["mine"] = True if post["user_id"] == user_id else False
+                post["mine"] = True if post["id"] == user_id else False
 
         return result
     finally:
@@ -32,7 +32,7 @@ def get_my_posts(user: dict = Depends(verify_token)):
     user_id = user["username"]
     try:
         with db.cursor() as cursor:
-            sql = "SELECT * FROM COMMUNITY_POSTS WHERE user_id = %s ORDER BY created_at DESC"
+            sql = "SELECT * FROM COMMUNITY_POSTS WHERE id = %s ORDER BY created_at DESC"
             cursor.execute(sql, (user_id,))
             result = cursor.fetchall()
         return result
@@ -54,7 +54,7 @@ def create_post(
     try:
         with db.cursor() as cursor:
             # INSERT 쿼리 실행
-            sql = "INSERT INTO COMMUNITY_POSTS (user_id, contents) VALUES (%s, %s)"
+            sql = "INSERT INTO COMMUNITY_POSTS (id, contents) VALUES (%s, %s)"
             cursor.execute(sql, (user_id, contents))
             # 방금 삽입된 post_id 가져오기
             post_id = cursor.lastrowid  # AUTO_INCREMENT로 생성된 ID
@@ -65,7 +65,7 @@ def create_post(
 
             # 사진 URL 업데이트
             if photo_url:
-                sql_update = "UPDATE COMMUNITY_POSTS SET photo = %s WHERE id = %s"
+                sql_update = "UPDATE COMMUNITY_POSTS SET photo = %s WHERE post_num = %s"
                 cursor.execute(sql_update, (photo_url, post_id))
 
         db.commit()
@@ -88,7 +88,7 @@ def update_post(
     try:
         with db.cursor() as cursor:
             # 기존 사진 URL 가져오기
-            sql_select = "SELECT photo FROM COMMUNITY_POSTS WHERE id = %s AND user_id = %s"
+            sql_select = "SELECT photo FROM COMMUNITY_POSTS WHERE post_num = %s AND id = %s"
             cursor.execute(sql_select, (post_id, user_id))
             result = cursor.fetchone()
             old_photo_url = result["photo"] if result else None
@@ -111,7 +111,7 @@ def update_post(
             sql_update = """
             UPDATE COMMUNITY_POSTS 
             SET contents = %s, photo = %s 
-            WHERE id = %s AND user_id = %s
+            WHERE post_num = %s AND id = %s
             """
             cursor.execute(sql_update, (contents, photo_url, post_id, user_id))
         db.commit()
@@ -127,7 +127,7 @@ def delete_post(post_id: int, user: dict = Depends(verify_token)):
     try:
         with db.cursor() as cursor:
             # 게시글 사진 URL 가져오기
-            sql_select = "SELECT photo FROM COMMUNITY_POSTS WHERE id = %s AND user_id = %s"
+            sql_select = "SELECT photo FROM COMMUNITY_POSTS WHERE post_num = %s AND id = %s"
             cursor.execute(sql_select, (post_id, user_id))
             result = cursor.fetchone()
             old_photo_url = result["photo"] if result else None
@@ -137,7 +137,7 @@ def delete_post(post_id: int, user: dict = Depends(verify_token)):
                 delete_file_from_s3(user_id, old_photo_url)
 
             # 게시글 삭제
-            sql_delete = "DELETE FROM COMMUNITY_POSTS WHERE id = %s AND user_id = %s"
+            sql_delete = "DELETE FROM COMMUNITY_POSTS WHERE post_num = %s AND id = %s"
             cursor.execute(sql_delete, (post_id, user_id))
         db.commit()
     finally:
