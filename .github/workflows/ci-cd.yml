@@ -133,18 +133,10 @@ jobs:
           # Ensure Helm chart directory exists
           mkdir -p helm/backend
 
-          # Create or update values.yaml with only non-sensitive information
+          # Create or update values.yaml with only the image tag
           cat > helm/backend/values.yaml << EOF
-          replicaCount: 3
-
           image:
-            repository: "688567288847.dkr.ecr.us-west-2.amazonaws.com/backend"
             tag: "${{ needs.version.outputs.version_tag }}"
-            pullPolicy: Always
-
-          service:
-            type: LoadBalancer
-            port: 8000
           EOF
 
           # Commit and push the updated values.yaml
