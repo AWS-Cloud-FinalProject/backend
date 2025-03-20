@@ -24,20 +24,9 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    {{- if eq .Values.service.type "LoadBalancer" }}
     - name: http
       port: 80
       targetPort: 8000
       protocol: TCP
-    - name: https
-      port: 443
-      targetPort: 8000
-      protocol: TCP
-    {{- else }}
-    - name: http
-      port: {{ .Values.service.port }}
-      targetPort: 8000
-      protocol: TCP
-    {{- end }}
   selector:
     app: backend
