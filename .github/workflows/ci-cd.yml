@@ -133,9 +133,8 @@ jobs:
           # Ensure Helm chart directory exists
           mkdir -p helm/backend
           
-          # If values.yaml doesn't exist, create it with default values
-          if [ ! -f helm/backend/values.yaml ]; then
-            cat > helm/backend/values.yaml << EOF
+          # Create or update values.yaml with all values
+          cat > helm/backend/values.yaml << EOF
           replicaCount: 3
 
           image:
