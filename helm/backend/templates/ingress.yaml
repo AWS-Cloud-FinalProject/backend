@@ -11,15 +11,15 @@ metadata:
     alb.ingress.kubernetes.io/ssl-redirect: '443'
     alb.ingress.kubernetes.io/healthcheck-path: '/health'
     alb.ingress.kubernetes.io/healthcheck-port: '8000'
-    alb.ingress.kubernetes.io/rewrite-target: /$2
+    alb.ingress.kubernetes.io/rewrite-target: /$1
 spec:
   ingressClassName: alb
   rules:
   - host: wiary.site
     http:
       paths:
-      - path: /api(/|$)(.*)
-        pathType: Prefix
+      - path: /api/(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: backend-service
@@ -27,7 +27,7 @@ spec:
               number: 80
       # 프론트엔드 서비스가 준비되면 아래 설정 주석 해제
       # - path: /(.*)
-      #   pathType: Prefix
+      #   pathType: ImplementationSpecific
       #   backend:
       #     service:
       #       name: frontend-service
