@@ -14,7 +14,7 @@ spec:
         app: backend
     spec:
       nodeSelector:
-        role: back-node-group
+        role: application
       containers:
         - name: backend
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
