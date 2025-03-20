@@ -4,7 +4,7 @@ metadata:
   name: backend-service
   namespace: backend
   annotations:
-    {{- if eq .Values.service.type "LoadBalancer" }}
+    {{- if eq (.Values.service.type | default "ClusterIP") "LoadBalancer" }}
     # AWS ALB annotations
     service.beta.kubernetes.io/aws-load-balancer-type: external
     service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
