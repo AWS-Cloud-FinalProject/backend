@@ -48,6 +48,10 @@ def refresh_access_token(refresh_token: str = Header(None)):
     except Exception as e:
         raise HTTPException(status_code=403, detail="Invalid Refresh Token")
 
+@app.get("/api/health")
+def health_check():
+    return {"status": "healthy", "message": "Service is running"}
+
 # Routers
 app.include_router(user.router, tags=["User"])
 app.include_router(todo.router, tags=["Todo"])
