@@ -1,25 +1,10 @@
 replicaCount: 3
 
 image:
-  repository: backend
+  repository: "688567288847.dkr.ecr.us-west-2.amazonaws.com/backend"
   tag: latest
   pullPolicy: Always
 
-database:
-  host: ''
-  user: ''
-  password: ''
-  name: ''
-
-aws:
-  region: ''
-  accessKeyId: ''
-  secretAccessKey: ''
-
-cognito:
-  userPoolId: ''
-  clientId: ''
-
 service:
-  type: ClusterIP
+  type: LoadBalancer
   port: 8000

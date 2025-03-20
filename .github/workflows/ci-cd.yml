@@ -1,4 +1,4 @@
-name: Backend CI/CD with Docker and EKS
+name: Backend CI/CD with GitOps
 
 on:
   push:
@@ -117,7 +117,7 @@ jobs:
           docker push ${{ secrets.ECR_REPOSITORY_URI }}/backend:${{ needs.version.outputs.version_tag }}
           docker push ${{ secrets.ECR_REPOSITORY_URI }}/backend:latest
 
-  deploy:
+  update-helm-values:
     needs: [docker, version]
     runs-on: ubuntu-latest
     steps:
@@ -128,105 +128,28 @@ jobs:
           persist-credentials: true
           fetch-depth: 0
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Update kubeconfig for EKS
+      - name: Update Helm values
         run: |
-          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }}
+          # Ensure Helm chart directory exists
+          mkdir -p helm/backend
 
-      - name: Label EKS Nodes
-        run: |
-          echo "Getting nodes from back-node-group..."
-          NODES=$(kubectl get nodes -l eks.amazonaws.com/nodegroup=back-node-group -o jsonpath='{.items[*].metadata.name}')
-
-          if [ -z "$NODES" ]; then
-            echo "No nodes found in back-node-group"
-            exit 1
-          fi
-
-          echo "Found nodes: $NODES"
-          for NODE in $NODES; do
-            echo "Labeling node: $NODE"
-            kubectl label nodes $NODE role=back-node-group --overwrite=true
-          done
-
-          # Verify node labels
-          echo "Checking node labels:"
-          kubectl get nodes --show-labels | grep back-node-group
-
-      - name: Set up Helm
-        uses: azure/setup-helm@v3
-        with:
-          version: 'latest'
-
-      - name: Deploy Applications
-        run: |
-          # Ensure directories exist
-          mkdir -p helm/apps helm/backend
-
-          # Create values override file for apps chart
-          cat > helm/apps/values.yaml << EOF
-          repoURL: https://github.com/AWS-Cloud-FinalProject/backend.git
-          targetRevision: production
-          backend:
-            image:
-              repository: "${{ secrets.ECR_REPOSITORY_URI }}/backend"
-              tag: "${{ needs.version.outputs.version_tag }}"
-            
-            database:
-              host: "${{ secrets.DB_HOST }}"
-              user: "${{ secrets.DB_USER }}"
-              password: "${{ secrets.DB_PASSWORD }}"
-              name: "${{ secrets.DB_NAME }}"
-              
-            aws:
-              region: "${{ secrets.AWS_REGION }}"
-              accessKeyId: "${{ secrets.AWS_ACCESS_KEY_ID }}"
-              secretAccessKey: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-              
-            cognito:
-              userPoolId: "${{ secrets.COGNITO_USER_POOL }}"
-              clientId: "${{ secrets.COGNITO_CLIENT_ID }}"
-          EOF
-
-          # Create values file for backend chart
+          # Create or update values.yaml with only non-sensitive information
           cat > helm/backend/values.yaml << EOF
           replicaCount: 3
 
           image:
-            repository: "${{ secrets.ECR_REPOSITORY_URI }}/backend"
+            repository: "688567288847.dkr.ecr.us-west-2.amazonaws.com/backend"
             tag: "${{ needs.version.outputs.version_tag }}"
             pullPolicy: Always
 
-          database:
-            host: "${{ secrets.DB_HOST }}"
-            user: "${{ secrets.DB_USER }}"
-            password: "${{ secrets.DB_PASSWORD }}"
-            name: "${{ secrets.DB_NAME }}"
-            
-          aws:
-            region: "${{ secrets.AWS_REGION }}"
-            accessKeyId: "${{ secrets.AWS_ACCESS_KEY_ID }}"
-            secretAccessKey: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-            
-          cognito:
-            userPoolId: "${{ secrets.COGNITO_USER_POOL }}"
-            clientId: "${{ secrets.COGNITO_CLIENT_ID }}"
-
           service:
-            type: ClusterIP
+            type: LoadBalancer
             port: 8000
           EOF
 
-          # Apply the apps chart using Helm with debug output
-          helm upgrade --install backend-apps helm/apps -n argocd --create-namespace --debug
-
-      - name: Cleanup old ReplicaSets
-        run: |
-          # Get all ReplicaSets except the latest one and delete them
-          kubectl get replicaset -l app=backend -o name | tail -n +2 | xargs -r kubectl delete
+          # Commit and push the updated values.yaml
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add helm/backend/values.yaml
+          git commit -m "Update backend image to ${{ needs.version.outputs.version_tag }}"
+          git push origin production

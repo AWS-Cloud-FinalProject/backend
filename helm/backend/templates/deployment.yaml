@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-deployment
+  namespace: backend
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -21,20 +22,47 @@ spec:
             - containerPort: 8000
           env:
             - name: DB_HOST
-              value: "{{ .Values.database.host }}"
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: database-host
             - name: DB_USER
-              value: "{{ .Values.database.user }}"
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: database-user
             - name: DB_PASSWORD
-              value: "{{ .Values.database.password }}"
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: database-password
             - name: DB_NAME
-              value: "{{ .Values.database.name }}"
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: database-name
             - name: AWS_REGION
-              value: "{{ .Values.aws.region }}"
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: aws-region
             - name: AWS_ACCESS_KEY_ID
-              value: "{{ .Values.aws.accessKeyId }}"
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: aws-access-key-id
             - name: AWS_SECRET_ACCESS_KEY
-              value: "{{ .Values.aws.secretAccessKey }}"
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: aws-secret-access-key
             - name: COGNITO_USER_POOL
-              value: "{{ .Values.cognito.userPoolId }}"
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: cognito-user-pool-id
             - name: COGNITO_CLIENT_ID
-              value: "{{ .Values.cognito.clientId }}"
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: cognito-client-id
