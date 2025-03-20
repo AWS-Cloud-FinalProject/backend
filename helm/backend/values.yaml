@@ -1,3 +1,5 @@
+replicaCount: 3
+
 image:
   tag: "v0.1.2"
 
