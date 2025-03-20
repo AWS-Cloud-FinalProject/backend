@@ -2,7 +2,7 @@ replicaCount: 3
 
 image:
   repository: "688567288847.dkr.ecr.us-west-2.amazonaws.com/backend"
-  tag: "v0.1.7"
+  tag: "v0.1.8"
   pullPolicy: Always
 
 service:
