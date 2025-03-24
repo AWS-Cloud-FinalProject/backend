@@ -14,26 +14,25 @@ app = FastAPI(root_path="/api")  # API 경로 접두어 설정
 origins = [
     "http://wiary.site",  # 허용할 출처 목록을 여기에 추가
 ]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,  # 허용할 출처 목록
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "DELETE", "PATCH"],  # 허용할 HTTP 메서드
-    allow_headers=["*"],  # 모든 헤더 허용
-)
-
 # 미들웨어로 X-Requested-With 헤더 체크
 class RedirectMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         # /api/health 경로를 제외하고 리디렉션을 적용하도록 수정
-        if not request.url.path.startswith("/api/health") and request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        if request.url.path != "/api/health" and request.headers.get('X-Requested-With') != 'XMLHttpRequest':
             return RedirectResponse(url='/')  # 리디렉트 주소 수정
         response = await call_next(request)
         return response
 
-# 미들웨어 등록 (CORS 후에 등록)
+# 미들웨어 순서를 수정하여 RedirectMiddleware가 먼저 실행되도록 설정
 app.add_middleware(RedirectMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "DELETE", "PATCH"],
+    allow_headers=["*"],
+)
+
 
 # API 경로에서 '/api' 접두어를 제거하는 미들웨어
 @app.middleware("http")
