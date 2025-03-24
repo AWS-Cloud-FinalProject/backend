@@ -8,7 +8,7 @@ from routers.cognito import cognito_client, CLIENT_ID
 
 load_dotenv()
 
-app = FastAPI(root_path="/api")  # API 경로 접두어 설정
+app = FastAPI()  # API 경로 접두어 설정
 
 # CORS 미들웨어 설정
 origins = [
@@ -32,7 +32,6 @@ app.add_middleware(
     allow_methods=["GET", "POST", "DELETE", "PATCH"],
     allow_headers=["*"],
 )
-
 
 # API 경로에서 '/api' 접두어를 제거하는 미들웨어
 @app.middleware("http")
