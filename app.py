@@ -14,6 +14,7 @@ app = FastAPI()  # API 경로 접두어 설정
 origins = [
     "http://wiary.site",  # 허용할 출처 목록을 여기에 추가
 ]
+
 # 미들웨어로 X-Requested-With 헤더 체크
 class RedirectMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
