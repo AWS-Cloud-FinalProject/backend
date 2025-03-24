@@ -9,7 +9,7 @@ metadata:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-west-2:688567288847:certificate/16863a82-4372-4edb-9700-0f98556f29e9
     alb.ingress.kubernetes.io/ssl-redirect: '443'
-    alb.ingress.kubernetes.io/healthcheck-path: '/api/health'
+    alb.ingress.kubernetes.io/healthcheck-path: '/health'
     alb.ingress.kubernetes.io/healthcheck-port: '8000'
     alb.ingress.kubernetes.io/group.name: "wiary"
 spec:
