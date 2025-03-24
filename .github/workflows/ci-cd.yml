@@ -57,7 +57,7 @@ jobs:
           PATCH=$(echo $LATEST_TAG | sed 's/v\([0-9]*\).\([0-9]*\).\([0-9]*\)/\3/')
 
           # Get the commit message
-          COMMIT_MSG=$(git log -1 --pretty=%B)
+          COMMIT_MSG=$(git log -1 --etty=%B)
 
           # Check commit message for version bump keywords
           if echo "$COMMIT_MSG" | grep -iE "BREAKING CHANGE|major" > /dev/null; then
