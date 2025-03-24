@@ -127,28 +127,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: true
           fetch-depth: 0
-          
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Update kubeconfig for EKS
-        run: |
-          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }}
-
-      - name: Set up Helm
-        uses: azure/setup-helm@v3
-        with:
-          version: 'latest'
 
       - name: Update Helm values
         run: |
           # Ensure Helm chart directory exists
           mkdir -p helm/backend
-
+          
           # Create or update values.yaml with all values
           cat > helm/backend/values.yaml << EOF
           replicaCount: 3
@@ -162,10 +146,11 @@ jobs:
             type: ClusterIP
             port: 8000
           EOF
-
-          # Debug: Show generated values file
-          echo "Generated helm/backend/values.yaml:"
-          cat helm/backend/values.yaml
-
-          # Apply the Helm chart using Helm
-          helm upgrade --install backend-apps helm/apps -n argocd --create-namespace --debug
+      
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add helm/backend/values.yaml
+          git commit -m "Update backend image to ${{ needs.version.outputs.version_tag }}"
+          git push
