@@ -1,10 +1,10 @@
 from pydantic import BaseModel
-from datetime import date
 
 class SignUp(BaseModel):
     id: str
     name: str
     password: str
+    email: str
 
 class SignIn(BaseModel):
     id: str
@@ -21,17 +21,11 @@ class CreateTodo(BaseModel):
     status: str
     title: str
     contents: str
+    todo_order: int
 
 class EditTodo(BaseModel):
-    todo_num : int
-    status : str
-    title : str
-    contents : str
-
-class Diary(BaseModel):
-    date: date
-    id: str
+    todo_num: int
+    status: str
     title: str
     contents: str
-    photo: str
-    emotion: str
+    todo_order: int

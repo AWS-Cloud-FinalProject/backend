@@ -1,0 +1,10 @@
+replicaCount: 3
+
+image:
+  repository: ""
+  tag: ""
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 8000
