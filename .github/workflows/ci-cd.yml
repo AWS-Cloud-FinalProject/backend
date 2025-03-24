@@ -3,7 +3,7 @@ name: Backend CI/CD with GitOps
 on:
   push:
     branches:
-      - production
+      - master
     paths-ignore:
       - 'README.md'
 
