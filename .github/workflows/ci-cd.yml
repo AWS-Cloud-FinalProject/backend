@@ -147,10 +147,4 @@ jobs:
             port: 8000
           EOF
       
-      - name: Commit and push changes
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add helm/backend/values.yaml
-          git commit -m "Update backend image to ${{ needs.version.outputs.version_tag }}"
-          git push
+          helm upgrade --install backend-apps helm/apps -n argocd --create-namespace --debug
