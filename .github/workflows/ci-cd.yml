@@ -141,7 +141,7 @@ jobs:
         run: |
           # Ensure Helm chart directory exists
           mkdir -p helm/backend
-          
+
           # Create or update values.yaml with all values
           cat > helm/backend/values.yaml << EOF
           replicaCount: 3
@@ -155,5 +155,10 @@ jobs:
             type: ClusterIP
             port: 8000
           EOF
-      
+
+          # Debug: Show generated values file
+          echo "Generated helm/backend/values.yaml:"
+          cat helm/backend/values.yaml
+
+          # Apply the Helm chart using Helm
           helm upgrade --install backend-apps helm/apps -n argocd --create-namespace --debug
