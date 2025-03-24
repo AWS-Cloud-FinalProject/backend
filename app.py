@@ -26,8 +26,8 @@ app.add_middleware(
 # 미들웨어로 X-Requested-With 헤더 체크
 class RedirectMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        # X-Requested-With가 없거나 값이 XMLHttpRequest가 아닐 때 리다이렉트
-        if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        # /api/health 경로에서는 X-Requested-With 헤더 검사 안함
+        if request.url.path != "/api/health" and request.headers.get('X-Requested-With') != 'XMLHttpRequest':
             return RedirectResponse(url='/')  # 리다이렉트 주소 수정
         response = await call_next(request)
         return response
