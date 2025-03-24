@@ -14,6 +14,9 @@ metadata:
     alb.ingress.kubernetes.io/group.name: "wiary"
 spec:
   ingressClassName: alb
+  tls:
+  - hosts:
+    - wiary.site 
   rules:
   - host: wiary.site
     http:
@@ -25,6 +28,3 @@ spec:
             name: backend-service
             port:
               number: 80
-  tls:
-  - hosts:
-    - wiary.site 
