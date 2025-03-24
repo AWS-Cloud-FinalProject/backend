@@ -128,6 +128,15 @@ jobs:
           persist-credentials: true
           fetch-depth: 0
 
+      - name: Update kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+
       - name: Update Helm values
         run: |
           # Ensure Helm chart directory exists
