@@ -6,7 +6,7 @@ from routers.cognito import cognito_client, CLIENT_ID
 
 load_dotenv()
 
-app = FastAPI()
+app = FastAPI(root_path="/api")
 
 origins = [
     "http://wiary.site",  # 프론트엔드 도메인만 허용
@@ -55,7 +55,7 @@ def refresh_access_token(refresh_token: str = Header(None)):
     except Exception as e:
         raise HTTPException(status_code=403, detail="Invalid Refresh Token")
 
-@app.get("/api/health")
+@app.get("/health")
 def health_check():
     return {"status": "healthy", "message": "Service is running"}
 
