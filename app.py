@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Header
+from fastapi import FastAPI, HTTPException, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from routers import user, todo, diary, community_post
 from dotenv import load_dotenv
@@ -19,6 +19,13 @@ app.add_middleware(
     allow_methods=["GET", "POST", "DELETE", "PATCH"],  # 허용할 HTTP 메서드
     allow_headers=["*"],  # 모든 헤더 허용
 )
+
+@app.middleware("http")
+async def add_api_prefix(request: Request, call_next):
+    prefix = request.headers.get("x-forwarded-prefix", "")
+    request.scope["path"] = request.scope["path"].removeprefix(prefix)
+    response = await call_next(request)
+    return response
 
 # 서버 상태 확인
 @app.get("/ping")
