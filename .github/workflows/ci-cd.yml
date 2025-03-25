@@ -3,7 +3,7 @@ name: Backend CI/CD with GitOps
 on:
   push:
     branches:
-      - production
+      - master
     paths-ignore:
       - 'README.md'
 
@@ -147,10 +147,13 @@ jobs:
             port: 8000
           EOF
       
+      - name: Pull latest changes
+        run: git pull origin master
+
       - name: Commit and push changes
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add helm/backend/values.yaml
-          git commit -m "Update backend image to ${{ needs.version.outputs.version_tag }}"
+          git commit -m "Update backend image to ${{ needs.version.outputs.new_tag }}"
           git push
