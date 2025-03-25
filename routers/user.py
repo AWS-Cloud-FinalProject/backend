@@ -76,7 +76,10 @@ def create_user(user: SignUp):
         
         return {"message": "User created successfully"}
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        if 'UsernameExistsException' in str(e):
+            raise HTTPException(status_code=400, detail="User already exists")
+        else:
+            raise HTTPException(status_code=400, detail=str(e))
 
 # 로그인
 @router.post("/sign-in")
@@ -139,7 +142,8 @@ def withdraw(user: WithDraw, token: dict = Depends(verify_token)):
         print(f"Withdraw error: {str(e)}")
         if "Current password is incorrect" in str(e):
             raise HTTPException(status_code=400, detail="Current password is incorrect")
-        raise HTTPException(status_code=400, detail=str(e))
+        else:
+            raise HTTPException(status_code=400, detail=str(e))
 
 # 비밀번호 변경
 @router.patch("/edit-pw")
@@ -181,4 +185,5 @@ def edit_pw(user: EditPW, token: dict = Depends(verify_token)):
         print(f"Password update error: {str(e)}")
         if "Current password is incorrect" in str(e):
             raise HTTPException(status_code=400, detail="Current password is incorrect")
-        raise HTTPException(status_code=400, detail=str(e))
+        else:
+            raise HTTPException(status_code=400, detail=str(e))
