@@ -5,6 +5,7 @@ from routers import user, todo, diary, community_post
 from dotenv import load_dotenv
 from starlette.middleware.base import BaseHTTPMiddleware
 from routers.cognito import cognito_client, CLIENT_ID
+from prometheus_fastapi_instrumentator import Instrumentator
 
 load_dotenv()
 
@@ -43,6 +44,12 @@ async def add_api_prefix(request: Request, call_next):
     request.scope["path"] = request.scope["path"].removeprefix(prefix)
     response = await call_next(request)
     return response
+
+# Prometheus 메트릭 설정 (기본 설정만 사용)
+@app.on_event("startup")
+async def startup():
+    # 기본 설정으로 Prometheus 메트릭 활성화
+    Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 # 서버 상태 확인
 @app.get("/ping")
