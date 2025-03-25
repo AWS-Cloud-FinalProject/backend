@@ -16,6 +16,7 @@ origins = [
     "http://wiary.site",  # 허용할 출처 목록을 여기에 추가
 ]
 
+
 # 미들웨어로 X-Requested-With 헤더 체크
 class RedirectMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -24,6 +25,7 @@ class RedirectMiddleware(BaseHTTPMiddleware):
             return RedirectResponse(url='/')  # 리디렉트 주소 수정
         response = await call_next(request)
         return response
+
 
 # 미들웨어 순서를 수정하여 RedirectMiddleware가 먼저 실행되도록 설정
 app.add_middleware(RedirectMiddleware)
@@ -35,6 +37,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # API 경로에서 '/api' 접두어를 제거하는 미들웨어
 @app.middleware("http")
 async def add_api_prefix(request: Request, call_next):
@@ -45,16 +48,22 @@ async def add_api_prefix(request: Request, call_next):
     response = await call_next(request)
     return response
 
+
 # Prometheus 메트릭 설정 (기본 설정만 사용)
+instrumentator = Instrumentator().instrument(app)
+
+
 @app.on_event("startup")
 async def startup():
     # 기본 설정으로 Prometheus 메트릭 활성화
-    Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+    instrumentator.expose(app, endpoint="/metrics")
+
 
 # 서버 상태 확인
 @app.get("/ping")
 def ping():
     return "pongggggggggggg"
+
 
 @app.post("/refresh-token")
 def refresh_access_token(refresh_token: str = Header(None)):
@@ -63,7 +72,7 @@ def refresh_access_token(refresh_token: str = Header(None)):
     """
     if not refresh_token:
         raise HTTPException(status_code=403, detail="Refresh Token required")
-    
+
     try:
         response = cognito_client.initiate_auth(
             ClientId=CLIENT_ID,
@@ -72,19 +81,21 @@ def refresh_access_token(refresh_token: str = Header(None)):
                 'REFRESH_TOKEN': refresh_token
             }
         )
-        
+
         return {
             "access_token": response['AuthenticationResult']['AccessToken']
         }
     except Exception as e:
         raise HTTPException(status_code=403, detail="Invalid Refresh Token")
 
+
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "message": "Service is running"}
+
 
 # Routers
 app.include_router(user.router, tags=["User"])
 app.include_router(todo.router, tags=["Todo"])
 app.include_router(diary.router, tags=["Diary"])
-app.include_router(community.router, tags=["Community Post"])
+app.include_router(community.router, tags=["Community"])
