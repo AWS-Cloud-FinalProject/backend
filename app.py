@@ -21,7 +21,7 @@ origins = [
 class RedirectMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         # /health 경로를 제외하고 리디렉션을 적용하도록 수정
-        if request.url.path != "/health" and request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        if request.url.path not in ["/health", "/metrics"] and request.headers.get('X-Requested-With') != 'XMLHttpRequest':
             return RedirectResponse(url='/')  # 리디렉트 주소 수정
         response = await call_next(request)
         return response
