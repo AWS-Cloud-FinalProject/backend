@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
-from routers import user, todo, diary, community_post
+from routers import user, todo, diary, community
 from dotenv import load_dotenv
 from starlette.middleware.base import BaseHTTPMiddleware
 from routers.cognito import cognito_client, CLIENT_ID
@@ -87,4 +87,4 @@ def health_check():
 app.include_router(user.router, tags=["User"])
 app.include_router(todo.router, tags=["Todo"])
 app.include_router(diary.router, tags=["Diary"])
-app.include_router(community_post.router, tags=["Community Post"])
+app.include_router(community.router, tags=["Community Post"])

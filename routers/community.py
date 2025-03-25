@@ -13,7 +13,7 @@ def get_posts(user: dict = Depends(verify_token)):
     user_id = user["username"]
     try:
         with db.cursor() as cursor:
-            sql = "SELECT * FROM COMMUNITY_POSTS ORDER BY created_at DESC"
+            sql = "SELECT * FROM COMMUNITY ORDER BY created_at DESC"
             cursor.execute(sql)
             result = cursor.fetchall()
 
@@ -32,7 +32,7 @@ def get_my_posts(user: dict = Depends(verify_token)):
     user_id = user["username"]
     try:
         with db.cursor() as cursor:
-            sql = "SELECT * FROM COMMUNITY_POSTS WHERE id = %s ORDER BY created_at DESC"
+            sql = "SELECT * FROM COMMUNITY WHERE id = %s ORDER BY created_at DESC"
             cursor.execute(sql, (user_id,))
             result = cursor.fetchall()
         return result
@@ -54,18 +54,18 @@ def create_post(
     try:
         with db.cursor() as cursor:
             # INSERT 쿼리 실행
-            sql = "INSERT INTO COMMUNITY_POSTS (id, contents) VALUES (%s, %s)"
+            sql = "INSERT INTO COMMUNITY (id, contents) VALUES (%s, %s)"
             cursor.execute(sql, (user_id, contents))
             # 방금 삽입된 post_id 가져오기
             post_id = cursor.lastrowid  # AUTO_INCREMENT로 생성된 ID
 
             # 사진이 있다면 업로드 처리
             if photo:
-                photo_url = upload_to_s3("post", photo, "webdiary", "community_posts", post_id)
+                photo_url = upload_to_s3("post", photo, "webdiary", "COMMUNITY", post_id)
 
             # 사진 URL 업데이트
             if photo_url:
-                sql_update = "UPDATE COMMUNITY_POSTS SET photo = %s WHERE post_num = %s"
+                sql_update = "UPDATE COMMUNITY SET photo = %s WHERE post_num = %s"
                 cursor.execute(sql_update, (photo_url, post_id))
 
         db.commit()
@@ -88,7 +88,7 @@ def update_post(
     try:
         with db.cursor() as cursor:
             # 기존 사진 URL 가져오기
-            sql_select = "SELECT photo FROM COMMUNITY_POSTS WHERE post_num = %s AND id = %s"
+            sql_select = "SELECT photo FROM COMMUNITY WHERE post_num = %s AND id = %s"
             cursor.execute(sql_select, (post_id, user_id))
             result = cursor.fetchone()
             old_photo_url = result["photo"] if result else None
@@ -105,11 +105,11 @@ def update_post(
             elif photo_provided and photo:
                 if old_photo_url:
                     delete_file_from_s3(user_id, old_photo_url)  # 기존 파일 삭제
-                photo_url = upload_to_s3("post", photo, "webdiary", "community_posts", post_id)  # 새 파일 업로드
+                photo_url = upload_to_s3("post", photo, "webdiary", "COMMUNITY", post_id)  # 새 파일 업로드
 
             # 게시글 내용 업데이트
             sql_update = """
-            UPDATE COMMUNITY_POSTS 
+            UPDATE COMMUNITY 
             SET contents = %s, photo = %s 
             WHERE post_num = %s AND id = %s
             """
@@ -127,7 +127,7 @@ def delete_post(post_id: int, user: dict = Depends(verify_token)):
     try:
         with db.cursor() as cursor:
             # 게시글 사진 URL 가져오기
-            sql_select = "SELECT photo FROM COMMUNITY_POSTS WHERE post_num = %s AND id = %s"
+            sql_select = "SELECT photo FROM COMMUNITY WHERE post_num = %s AND id = %s"
             cursor.execute(sql_select, (post_id, user_id))
             result = cursor.fetchone()
             old_photo_url = result["photo"] if result else None
@@ -137,7 +137,7 @@ def delete_post(post_id: int, user: dict = Depends(verify_token)):
                 delete_file_from_s3(user_id, old_photo_url)
 
             # 게시글 삭제
-            sql_delete = "DELETE FROM COMMUNITY_POSTS WHERE post_num = %s AND id = %s"
+            sql_delete = "DELETE FROM COMMUNITY WHERE post_num = %s AND id = %s"
             cursor.execute(sql_delete, (post_id, user_id))
         db.commit()
     finally:
