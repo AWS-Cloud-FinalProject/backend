@@ -146,6 +146,16 @@ jobs:
             type: ClusterIP
             port: 8000
           EOF
+
+      - name: Check and commit changes if needed
+        run: |
+          if git diff --quiet helm/backend/values.yaml; then
+            echo "No changes to commit"
+          else
+            git add helm/backend/values.yaml
+            git commit -m "edit: values.yaml"
+          fi
+
       
       - name: Pull latest changes
         run: git pull origin master
