@@ -61,7 +61,7 @@ def create_post(
 
             # 사진이 있다면 업로드 처리
             if photo:
-                photo_url = upload_to_s3("post", photo, "webdiary", "COMMUNITY", post_id)
+                photo_url = upload_to_s3("post", photo, "webdiary", "community", post_id)
 
             # 사진 URL 업데이트
             if photo_url:
@@ -105,7 +105,7 @@ def update_post(
             elif photo_provided and photo:
                 if old_photo_url:
                     delete_file_from_s3(user_id, old_photo_url)  # 기존 파일 삭제
-                photo_url = upload_to_s3("post", photo, "webdiary", "COMMUNITY", post_id)  # 새 파일 업로드
+                photo_url = upload_to_s3("post", photo, "webdiary", "community", post_id)  # 새 파일 업로드
 
             # 게시글 내용 업데이트
             sql_update = """
