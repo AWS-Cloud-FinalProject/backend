@@ -10,8 +10,6 @@ import uuid
 
 router = APIRouter()
 
-cloudfront_client = boto3.client("cloudfront")
-
 @router.get("/get-diary/{year_month}")
 def get_diary(year_month: str, user: dict = Depends(verify_token)):
     user_id = user["username"]
@@ -165,17 +163,6 @@ def edit_diary(
             unique_filename = f"{str(diary_date).replace('-', '')}_{uuid.uuid4().hex}"
             upload_to_s3("diary", photo, "webdiary", str(user_id), unique_filename)  # 새 파일 업로드
             photo_url = f"https://d1ktsg4kpjyy0c.cloudfront.net/{str(user_id)}/{unique_filename}.{photo.filename.split('.')[-1]}"
-
-            DISTRIBUTION_ID = "E12M5A2EJ2IWUV"
-
-            # CloudFront 캐시 무효화
-            cloudfront_client.create_invalidation(
-                DistributionId=DISTRIBUTION_ID,
-                InvalidationBatch={
-                    "Paths": {"Quantity": 1, "Items": [f"/{str(user_id)}/{str(diary_date).replace('-', '')}.{photo.filename.split('.')[-1]}"]},
-                    "CallerReference": str(user_id) + str(diary_date)
-                }
-            )
 
         # DB 업데이트
         sql_update = """
