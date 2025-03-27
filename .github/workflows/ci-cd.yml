@@ -163,16 +163,3 @@ jobs:
 
       - name: Push changes
         run: git push
-
-      - name: Deploy Applications
-        run: |
-          # Ensure directories exist
-          mkdir -p helm/backend
-
-          # Check node status and capacity
-          echo "Checking node status..."
-          kubectl get nodes -o wide
-          echo "Checking node capacity..."
-          kubectl describe nodes | grep -i pods
-          echo "Checking node labels..."
-          kubectl get nodes --show-labels
