@@ -132,7 +132,7 @@ jobs:
         run: |
           # Ensure Helm chart directory exists
           mkdir -p helm/backend
-          
+
           # Create or update values.yaml with all values
           cat > helm/backend/values.yaml << EOF
           replicaCount: 3
@@ -163,3 +163,16 @@ jobs:
 
       - name: Push changes
         run: git push
+
+      - name: Deploy Applications
+        run: |
+          # Ensure directories exist
+          mkdir -p helm/backend
+
+          # Check node status and capacity
+          echo "Checking node status..."
+          kubectl get nodes -o wide
+          echo "Checking node capacity..."
+          kubectl describe nodes | grep -i pods
+          echo "Checking node labels..."
+          kubectl get nodes --show-labels
