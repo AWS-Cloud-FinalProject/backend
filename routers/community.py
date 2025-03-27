@@ -3,6 +3,7 @@ from database import get_db_connection
 from functions import verify_token
 from routers.s3 import upload_to_s3, delete_file_from_s3
 from typing import Optional
+import uuid
 
 router = APIRouter()
 
@@ -61,8 +62,9 @@ def create_post(
 
             # 사진이 있다면 업로드 처리
             if photo:
-                photo_url = upload_to_s3("post", photo, "webdiary", "community", post_id)
-
+                unique_filename = f"{post_id}_{uuid.uuid4().hex}"
+                upload_to_s3("post", photo, "webdiary", "community", unique_filename)  # 새 파일 업로드
+                photo_url = f"https://d1ktsg4kpjyy0c.cloudfront.net/community/{unique_filename}.{photo.filename.split('.')[-1]}"
             # 사진 URL 업데이트
             if photo_url:
                 sql_update = "UPDATE COMMUNITY SET photo = %s WHERE post_num = %s"
@@ -105,7 +107,9 @@ def update_post(
             elif photo_provided and photo:
                 if old_photo_url:
                     delete_file_from_s3(user_id, old_photo_url)  # 기존 파일 삭제
-                photo_url = upload_to_s3("post", photo, "webdiary", "community", post_id)  # 새 파일 업로드
+                unique_filename = f"{post_id}_{uuid.uuid4().hex}"
+                upload_to_s3("post", photo, "webdiary", "community", unique_filename)  # 새 파일 업로드
+                photo_url = f"https://d1ktsg4kpjyy0c.cloudfront.net/community/{unique_filename}.{photo.filename.split('.')[-1]}"
 
             # 게시글 내용 업데이트
             sql_update = """

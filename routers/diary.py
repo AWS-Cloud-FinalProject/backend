@@ -5,8 +5,12 @@ from routers.s3 import upload_to_s3, delete_file_from_s3
 from datetime import date
 from urllib.parse import urlparse
 from typing import Optional
+import boto3
+import uuid
 
 router = APIRouter()
+
+cloudfront_client = boto3.client("cloudfront")
 
 @router.get("/get-diary/{year_month}")
 def get_diary(year_month: str, user: dict = Depends(verify_token)):
@@ -80,7 +84,9 @@ def add_diary(
     photo_url = None
 
     if photo:
-        photo_url = upload_to_s3("diary", photo, "webdiary", str(user_id), str(diary_date))
+        unique_filename = f"{str(diary_date).replace('-', '')}_{uuid.uuid4().hex}"
+        upload_to_s3("diary", photo, "webdiary", str(user_id), unique_filename)  # 새 파일 업로드
+        photo_url = f"https://d1ktsg4kpjyy0c.cloudfront.net/{str(user_id)}/{unique_filename}.{photo.filename.split('.')[-1]}"
     with db.cursor() as cursor:
         sql = "INSERT INTO DIARY (id, title, contents, emotion, photo, diary_date) VALUES (%s, %s, %s, %s, %s, %s)"
         cursor.execute(sql, (user_id, title, contents, emotion, photo_url, diary_date))
@@ -156,7 +162,20 @@ def edit_diary(
         elif photo_provided and photo:
             if old_photo_url:
                 delete_file_from_s3(user_id, old_photo_url)  # 기존 파일 삭제
-            photo_url = upload_to_s3("diary", photo, "webdiary", str(user_id), str(diary_date))  # 새 파일 업로드
+            unique_filename = f"{str(diary_date).replace('-', '')}_{uuid.uuid4().hex}"
+            upload_to_s3("diary", photo, "webdiary", str(user_id), unique_filename)  # 새 파일 업로드
+            photo_url = f"https://d1ktsg4kpjyy0c.cloudfront.net/{str(user_id)}/{unique_filename}.{photo.filename.split('.')[-1]}"
+
+            DISTRIBUTION_ID = "E12M5A2EJ2IWUV"
+
+            # CloudFront 캐시 무효화
+            cloudfront_client.create_invalidation(
+                DistributionId=DISTRIBUTION_ID,
+                InvalidationBatch={
+                    "Paths": {"Quantity": 1, "Items": [f"/{str(user_id)}/{str(diary_date).replace('-', '')}.{photo.filename.split('.')[-1]}"]},
+                    "CallerReference": str(user_id) + str(diary_date)
+                }
+            )
 
         # DB 업데이트
         sql_update = """

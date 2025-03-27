@@ -66,3 +66,8 @@ spec:
                 secretKeyRef:
                   name: backend-secrets
                   key: cognito-client-id
+            - name: CLOUDFRONT_DOMAIN
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: cloudfront-domain
