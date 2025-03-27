@@ -20,19 +20,15 @@ def upload_to_s3(ver: str, photo: UploadFile, bucket_name: str, folder_name: str
     try:
         # 파일을 메모리에서 읽어옵니다.
         file_content = photo.file.read()
-
         file_extension = photo.filename.split('.')[-1]
-
         if ver == "diary":
             file_name = f"{folder_name}/{file_name.replace('-', '')}.{file_extension}"
         else:
             file_name = f"{folder_name}/{file_name}.{file_extension}"
-        
         # S3에 업로드할 파일명: 사용자별 폴더와 날짜 기반 파일 이름 사용 (예: user-id/20250305.jpg)
         
         # S3로 파일 업로드
         s3_client.put_object(Body=file_content, Bucket=bucket_name, Key=file_name)
-
         # 업로드된 파일의 URL 생성
         photo_url = f"https://{bucket_name}.s3.amazonaws.com/{file_name}"
 
