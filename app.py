@@ -6,8 +6,18 @@ from dotenv import load_dotenv
 from starlette.middleware.base import BaseHTTPMiddleware
 from routers.cognito import cognito_client, CLIENT_ID
 from prometheus_fastapi_instrumentator import Instrumentator
+import logging
+import time
+import re
 
 load_dotenv()
+
+# 로거 설정
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()  # API 경로 접두어 설정
 
@@ -20,7 +30,7 @@ origins = [
 # 미들웨어로 X-Requested-With 헤더 체크
 class RedirectMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        # /health 경로를 제외하고 리디렉션을 적용하도록 수정
+        # /health와 /metrics 경로를 제외하고 리디렉션을 적용하도록 수정
         if request.url.path not in ["/health", "/metrics"] and request.headers.get('X-Requested-With') != 'XMLHttpRequest':
             return RedirectResponse(url='/')  # 리디렉트 주소 수정
         response = await call_next(request)
@@ -49,14 +59,53 @@ async def add_api_prefix(request: Request, call_next):
     return response
 
 
+# 로깅 미들웨어 추가 (API 접두어 제거 후에 실행)
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    start_time = time.time()
+    
+    # 클라이언트 IP 주소 가져오기
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        client_ip = forwarded_for.split(",")[0]
+    else:
+        client_ip = request.client.host
+    
+    method = request.method
+    path = request.url.path
+    
+    # 민감 정보 필터링 (예: 토큰, 비밀번호)
+    query_params = str(request.query_params)
+    query_params = re.sub(r'(token|password|secret)=([^&]*)', r'\1=***', query_params)
+    
+    # 메트릭 엔드포인트는 디버그 레벨로만 로깅
+    if path == "/metrics":
+        logger.debug(f"Request: {method} {path} - Client: {client_ip}")
+    else:
+        logger.info(f"Request: {method} {path} - Client: {client_ip} - Params: {query_params}")
+    
+    response = await call_next(request)
+    
+    process_time = time.time() - start_time
+    status_code = response.status_code
+    
+    # 상태 코드에 따라 로깅 레벨 조정
+    if 200 <= status_code < 400:
+        if path == "/metrics":
+            logger.debug(f"Response: {method} {path} - Status: {status_code} - Time: {process_time:.4f}s")
+        else:
+            logger.info(f"Response: {method} {path} - Status: {status_code} - Time: {process_time:.4f}s")
+    else:
+        logger.warning(f"Response: {method} {path} - Status: {status_code} - Time: {process_time:.4f}s")
+    
+    return response
+
+
 # Prometheus 메트릭 설정 (기본 설정만 사용)
-instrumentator = Instrumentator().instrument(app)
-
-
 @app.on_event("startup")
 async def startup():
     # 기본 설정으로 Prometheus 메트릭 활성화
-    instrumentator.expose(app, endpoint="/metrics")
+    Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 
 # 서버 상태 확인
