@@ -69,37 +69,36 @@ async def add_api_prefix(request: Request, call_next):
 async def log_requests(request: Request, call_next):
     start_time = time.time()
     
-    # 클라이언트 IP 주소 가져오기
-    forwarded_for = request.headers.get("X-Forwarded-For")
-    if forwarded_for:
-        client_ip = forwarded_for.split(",")[0]
-    else:
-        client_ip = request.client.host
-    
+    # 기본 요청 정보 수집
     method = request.method
     path = request.url.path
+    
+    # 클라이언트 IP 주소 가져오기
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    client_ip = forwarded_for.split(",")[0] if forwarded_for else request.client.host
     
     # 민감 정보 필터링 (예: 토큰, 비밀번호)
     query_params = str(request.query_params)
     query_params = re.sub(r'(token|password|secret)=([^&]*)', r'\1=***', query_params)
     
-    # 메트릭 엔드포인트는 디버그 레벨로만 로깅
-    if path == "/metrics":
-        logger.debug(f"Request: {method} {path} - Client: {client_ip}")
+    # 헬스체크와 메트릭스는 DEBUG 레벨로, 나머지는 INFO 레벨로 로깅
+    if path in ["/health", "/metrics"]:
+        logger.debug(f"Request: {method} {path} - Client: {client_ip} - Params: {query_params}")
     else:
         logger.info(f"Request: {method} {path} - Client: {client_ip} - Params: {query_params}")
     
+    # 요청 처리
     response = await call_next(request)
     
+    # 응답 시간 계산
     process_time = time.time() - start_time
     status_code = response.status_code
     
-    # 상태 코드에 따라 로깅 레벨 조정
-    if 200 <= status_code < 400:
-        if path == "/metrics":
-            logger.debug(f"Response: {method} {path} - Status: {status_code} - Time: {process_time:.4f}s")
-        else:
-            logger.info(f"Response: {method} {path} - Status: {status_code} - Time: {process_time:.4f}s")
+    # 상태 코드에 따라 로깅 레벨 조정 (헬스체크와 메트릭스는 항상 DEBUG)
+    if path in ["/health", "/metrics"]:
+        logger.debug(f"Response: {method} {path} - Status: {status_code} - Time: {process_time:.4f}s")
+    elif 200 <= status_code < 400:
+        logger.info(f"Response: {method} {path} - Status: {status_code} - Time: {process_time:.4f}s")
     else:
         logger.warning(f"Response: {method} {path} - Status: {status_code} - Time: {process_time:.4f}s")
     
