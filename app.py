@@ -21,6 +21,11 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()  # API 경로 접두어 설정
 
+# Prometheus 메트릭 설정 (기본 설정만 사용)
+# 미들웨어 추가 전에 instrumentator 초기화
+instrumentator = Instrumentator()
+instrumentator.instrument(app).expose(app, endpoint="/metrics")
+
 # CORS 미들웨어 설정
 origins = [
     "http://wiary.site",  # 허용할 출처 목록을 여기에 추가
@@ -99,13 +104,6 @@ async def log_requests(request: Request, call_next):
         logger.warning(f"Response: {method} {path} - Status: {status_code} - Time: {process_time:.4f}s")
     
     return response
-
-
-# Prometheus 메트릭 설정 (기본 설정만 사용)
-@app.on_event("startup")
-async def startup():
-    # 기본 설정으로 Prometheus 메트릭 활성화
-    Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 
 # 서버 상태 확인
